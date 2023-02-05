@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
-    abstract class Exception
+    public abstract class Exception
     {
         string type = "";
         string message;
         Position pos;
 
-        protected Exception(string message, Position pos)
+        public Exception(string message, Position pos)
         {
             this.message = message;
             this.pos = pos;
@@ -24,10 +24,10 @@ namespace MiniPL
         }
     }
 
-    class LexicalError : Exception
+    public class LexicalError : Exception
     {
         string type = "LexicalError";
 
-        LexicalError(string message, Position pos) : base(message, pos) { }
+        public LexicalError(string message, Position pos) : base(message, pos) { }
     }
 }
