@@ -26,8 +26,15 @@ namespace MiniPL
 
     public class LexicalError : Exception
     {
-        string type = "LexicalError";
+        readonly string type = "LexicalError";
 
         public LexicalError(string message, Position pos) : base(message, pos) { }
+    }
+
+    public class ParseError : Exception
+    {
+        readonly string type = "ParseError";
+
+        public ParseError(string message, Position pos) : base(message, pos) { }
     }
 }

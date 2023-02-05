@@ -1,7 +1,7 @@
 ﻿/* 
  * 02.02, 2 hours, started implementing scanner
  * 03.02, 1 hour,  started implementing token table
- * 05.02, 5 hours, finished main scanner logic, still not sure about table
+ * 05.02, 6 hours, finished main scanner logic, removed token table, started implementing parser
  */
 namespace MiniPL
 {
@@ -10,7 +10,7 @@ namespace MiniPL
         static void Main(string[] args)
         {
             string filename = "C:\\Users\\whitegrudov\\source\\repos\\MiniPL\\MiniPL\\test.mpl";
-            Scanner scanner = new Scanner(filename);
+            Parser parser = new Parser(filename);
         }
     }
 }

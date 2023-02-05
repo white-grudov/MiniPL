@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,9 +65,11 @@ namespace MiniPL
         Position currentPos = new Position(1, 0);
         Queue<char> symbols = new Queue<char>();
         Queue<Token> tokens = new Queue<Token>();
+        public Queue<Token> Tokens { get { return tokens; } }
 
         StringBuilder buffer = new StringBuilder();
         Exception? exception = null;
+        public Exception? Exception { get { return exception; } }
 
         Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
         {
@@ -84,26 +87,42 @@ namespace MiniPL
             { "bool",   TokenType.BOOL   },
             { "assert", TokenType.ASSERT }
         };
+        Dictionary<char, TokenType> singleChar = new Dictionary<char, TokenType>()
+        {
+            { '+', TokenType.PLUS      },
+            { '-', TokenType.MINUS     },
+            { '*', TokenType.MUL       },
+            { '/', TokenType.DIV       },
+            { '<', TokenType.LT        },
+            { '>', TokenType.GT        },
+            { '&', TokenType.AND       },
+            { '!', TokenType.NOT       },
+            { '=', TokenType.EQ        },
+            { ';', TokenType.SEMICOLON },
+            { '(', TokenType.LPAREN    },
+            { ')', TokenType.RPAREN    }
+        };
+        List<char> blankSpaces = new List<char>() { ' ', '\t' };
         Dictionary<char, char> escapeChars = new Dictionary<char, char> {
             {'n', '\n'}, {'t', '\t'}, {'\'', '\''}, {'\"', '\"'},
             {'r', '\r'}, {'f', '\f'}, {'v', '\v'}
         };
         List<char> allowedChars = new List<char>() {')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t'};
+
         public Scanner(string filename)
         {
             // scanning the file
             this.filename = filename;
             file = ReadFile();
             if (file == null)
-                // redo with custom exceptions
-                throw new ArgumentNullException("The source file is empty");
+            {
+                exception = new LexicalError("Source file is empty", currentPos);
+                return;
+            }
 
             // getting the char queue
             symbols = new Queue<char>(file);
             Tokenize();
-
-            foreach (var token in tokens)
-                Console.WriteLine("{0, -15} {1, -30} {2, 0}", token.type, token.value, token.pos);
         }
 
         private void Tokenize()
@@ -114,45 +133,15 @@ namespace MiniPL
                 switch (currentChar)
                 {
                     // blank spaces
-                    case ' ': case '\t':
+                    case var _ when blankSpaces.Contains(currentChar):
                         break;
 
                     // operators
-                    case '+':
-                        AddToken(TokenType.PLUS, currentChar.ToString());
-                        break;
-                    case '-':
-                        AddToken(TokenType.MINUS, currentChar.ToString());
-                        break;
-                    case '*':
-                        AddToken(TokenType.MUL, currentChar.ToString());
-                        break;
-                    case '/':
-                        AddToken(TokenType.DIV, currentChar.ToString());
-                        break;
-                    case '<':
-                        AddToken(TokenType.LT, currentChar.ToString());
-                        break;
-                    case '>':
-                        AddToken(TokenType.GT, currentChar.ToString());
-                        break;
-                    case '&':
-                        AddToken(TokenType.AND, currentChar.ToString());
-                        break;
-                    case '!':
-                        AddToken(TokenType.NOT, currentChar.ToString());
-                        break;
-                    case '=':
-                        AddToken(TokenType.EQ, currentChar.ToString());
+                    case var _ when singleChar.ContainsKey(currentChar):
+                        AddToken(singleChar[currentChar], currentChar.ToString());
                         break;
 
                     // other symbols
-                    case ';':
-                        AddToken(TokenType.SEMICOLON, currentChar.ToString());
-                        // TODO: add appearance of illegal char error handling
-                        break;
-
-                    // multichar tokens
                     case ':':
                         AddAssign();
                         break;
@@ -160,47 +149,34 @@ namespace MiniPL
                         AddDoubledot();
                         break;
 
-                    // parenthesises
-                    case '(':
-                        AddToken(TokenType.LPAREN, currentChar.ToString());
+                    // number literal
+                    case var _ when char.IsDigit(currentChar):
+                        AddNumberLiteral();
                         break;
-                    case ')':
-                        AddToken(TokenType.RPAREN, currentChar.ToString());
+                    // keywords and identifiers
+                    case var _ when char.IsLetter(currentChar) || currentChar == '_':
+                        AddIdentifierOrKeyword();
+                        break;
+                    // string literal
+                    case var _ when currentChar == '\"':
+                        AddStringLiteral();
                         break;
 
                     default:
-                        // number literal
-                        if (char.IsDigit(currentChar))
-                        {
-                            AddNumberLiteral();
-                        }
-                        // keywords and identifiers
-                        else if (char.IsLetter(currentChar) || currentChar == '_')
-                        {
-                            AddIdentifierOrKeyword();
-                        }
-                        // string literal
-                        else if (currentChar == '\"')
-                        {
-                            AddStringLiteral();
-                        }
-                        else
-                        {
-                            IllegalToken(currentChar.ToString(), "Invalid char error");
-                        }
+                        IllegalToken(currentChar.ToString(), "Invalid char error");
                         break;
                 }
             }
-            if (!isIllegalToken) AddToken(TokenType.EOF, "<EOF>");
+            if (!isIllegalToken) AddToken(TokenType.EOF, "");
         }
         // adds string literal token with escape symbols
         private void AddStringLiteral()
         {
             buffer.Append(currentChar);
             bool isEscapeChar = false;
-            while ((Lookahead() != '\"' && !isEscapeChar) || isEscapeChar)
+            while ((CharLookahead() != '\"' && !isEscapeChar) || isEscapeChar)
             {
-                if (Lookahead() == '\n')
+                if (CharLookahead() == '\n')
                 {
                     IllegalToken(buffer.ToString(), "Unterminated string");
                     return;
@@ -237,12 +213,12 @@ namespace MiniPL
         private void AddIdentifierOrKeyword()
         {
             buffer.Append(currentChar);
-            while (char.IsLetterOrDigit(Lookahead()) || Lookahead() == '_')
+            while (char.IsLetterOrDigit(CharLookahead()) || CharLookahead() == '_')
             {
                 Advance();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(Lookahead()))
+            if (!allowedChars.Contains(CharLookahead()))
             {
                 Advance();
                 buffer.Append(currentChar);
@@ -264,12 +240,12 @@ namespace MiniPL
         private void AddNumberLiteral()
         {
             buffer.Append(currentChar);
-            while (char.IsDigit(Lookahead()))
+            while (char.IsDigit(CharLookahead()))
             { 
                 Advance();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(Lookahead()))
+            if (!allowedChars.Contains(CharLookahead()))
             {
                 Advance();
                 buffer.Append(currentChar);
@@ -341,7 +317,7 @@ namespace MiniPL
             }
         }
 
-        private char Lookahead()
+        private char CharLookahead()
         {
             return symbols.Peek();
         }
