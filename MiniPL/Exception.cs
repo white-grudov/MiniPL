@@ -8,9 +8,9 @@ namespace MiniPL
 {
     public abstract class Exception
     {
-        string type = "";
         string message;
         Position pos;
+        public string? Type { get; protected set; }
 
         public Exception(string message, Position pos)
         {
@@ -20,21 +20,23 @@ namespace MiniPL
 
         public void What()
         {
-            Console.WriteLine($"{type}: {message} on line {pos.line} column {pos.column}.");
+            Console.WriteLine($"{Type}: {message} on line {pos.line} column {pos.column}.");
         }
     }
 
     public class LexicalError : Exception
     {
-        readonly string type = "LexicalError";
-
-        public LexicalError(string message, Position pos) : base(message, pos) { }
+        public LexicalError(string message, Position pos) : base(message, pos)
+        {
+            Type = "LexicalError";
+        }
     }
 
-    public class ParseError : Exception
+    public class SyntaxError : Exception
     {
-        readonly string type = "ParseError";
-
-        public ParseError(string message, Position pos) : base(message, pos) { }
+        public SyntaxError(string message, Position pos) : base(message, pos)
+        {
+            Type = "SyntaxError";
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace MiniPL
 
         EOF, ILLEGAL
     }
-    // TODO: fix position count
+
     public struct Position
     {
         public int line;
@@ -43,15 +43,15 @@ namespace MiniPL
     }
     struct Token
     {
-        public TokenType type;
-        public string value;
-        public Position pos;
+        public TokenType Type { get; }
+        public string Value { get; }
+        public Position Pos { get; }
 
         public Token(TokenType type, string value, Position pos)
         {
-            this.type = type;
-            this.value = value;
-            this.pos = pos;
+            Type = type;
+            Value = value;
+            Pos = pos;
         }
     }
     internal class Scanner
@@ -92,7 +92,6 @@ namespace MiniPL
             { '+', TokenType.PLUS      },
             { '-', TokenType.MINUS     },
             { '*', TokenType.MUL       },
-            { '/', TokenType.DIV       },
             { '<', TokenType.LT        },
             { '>', TokenType.GT        },
             { '&', TokenType.AND       },
@@ -122,6 +121,7 @@ namespace MiniPL
 
             // getting the char queue
             symbols = new Queue<char>(file);
+            // getting the token queue
             Tokenize();
         }
 
@@ -147,6 +147,9 @@ namespace MiniPL
                         break;
                     case '.':
                         AddDoubledot();
+                        break;
+                    case '/':
+                        AddComment();
                         break;
 
                     // number literal
@@ -174,9 +177,9 @@ namespace MiniPL
         {
             buffer.Append(currentChar);
             bool isEscapeChar = false;
-            while ((CharLookahead() != '\"' && !isEscapeChar) || isEscapeChar)
+            while ((Lookahead() != '\"' && !isEscapeChar) || isEscapeChar)
             {
-                if (CharLookahead() == '\n')
+                if (Lookahead() == '\n')
                 {
                     IllegalToken(buffer.ToString(), "Unterminated string");
                     return;
@@ -213,12 +216,12 @@ namespace MiniPL
         private void AddIdentifierOrKeyword()
         {
             buffer.Append(currentChar);
-            while (char.IsLetterOrDigit(CharLookahead()) || CharLookahead() == '_')
+            while (char.IsLetterOrDigit(Lookahead()) || Lookahead() == '_')
             {
                 Advance();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(CharLookahead()))
+            if (!allowedChars.Contains(Lookahead()))
             {
                 Advance();
                 buffer.Append(currentChar);
@@ -240,12 +243,12 @@ namespace MiniPL
         private void AddNumberLiteral()
         {
             buffer.Append(currentChar);
-            while (char.IsDigit(CharLookahead()))
+            while (char.IsDigit(Lookahead()))
             { 
                 Advance();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(CharLookahead()))
+            if (!allowedChars.Contains(Lookahead()))
             {
                 Advance();
                 buffer.Append(currentChar);
@@ -254,6 +257,43 @@ namespace MiniPL
                 return;
             }
             AddToken(TokenType.INT_LITERAL, buffer.ToString());
+            buffer.Clear();
+        }
+        // checks next char to determine whether it is a comment or div operator
+        private void AddComment()
+        {
+            buffer.Append(currentChar);
+            // single-line comment
+            if (Lookahead() == '/')
+            {
+                while (!IsAtEnd() && Lookahead() != '\n') Advance();
+            }
+            // multi-line comment
+            else if (Lookahead() == '*')
+            {
+                bool commentClosed = false;
+                Advance();
+                while (!IsAtEnd())
+                {
+                    if (currentChar == '*' && Lookahead() == '/')
+                    {
+                        Advance();
+                        commentClosed = true;
+                        break;
+                    }
+                    Advance();
+                }
+                if (!commentClosed)
+                {
+                    IllegalToken("", "Unenclosed comment");
+                    return;
+                }
+            }
+            // divider
+            else
+            {
+                AddToken(TokenType.DIV, buffer.ToString());
+            }
             buffer.Clear();
         }
         // checks next char to determine whether it is assign operator, colon or invalid token
@@ -316,10 +356,13 @@ namespace MiniPL
                 currentChar = symbols.Dequeue();
             }
         }
-
-        private char CharLookahead()
+        private bool IsAtEnd()
         {
-            return symbols.Peek();
+            return symbols.Count == 0;
+        }
+        private char Lookahead()
+        {
+            return symbols.Count != 0 ? symbols.Peek() : '\0';
         }
 
         private void AddToken(TokenType type, string value)
@@ -330,7 +373,7 @@ namespace MiniPL
         private string ReadFile()
         {
             string[] lines = File.ReadAllLines(filename);
-            return String.Join("\n", lines);
+            return string.Join("\n", lines);
         }
     }
 }
