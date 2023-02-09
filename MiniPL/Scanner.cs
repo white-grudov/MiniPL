@@ -68,8 +68,6 @@ namespace MiniPL
         public Queue<Token> Tokens { get { return tokens; } }
 
         StringBuilder buffer = new StringBuilder();
-        Exception? exception = null;
-        public Exception? Exception { get { return exception; } }
 
         Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
         {
@@ -115,18 +113,14 @@ namespace MiniPL
             file = ReadFile();
             if (file == null)
             {
-                exception = new LexicalError("Source file is empty", currentPos);
-                return;
+                throw new LexicalError("Source file is empty", currentPos);
             }
-
-            // getting the char queue
-            symbols = new Queue<char>(file);
-            // getting the token queue
-            Tokenize();
         }
 
-        private void Tokenize()
+        public void Tokenize()
         {
+            // getting the char queue
+            symbols = new Queue<char>(file);
             while (symbols.Count > 0 && !isIllegalToken)
             {
                 Advance();
@@ -341,8 +335,9 @@ namespace MiniPL
         {
             AddToken(TokenType.ILLEGAL, token);
             isIllegalToken = true;
-            exception = new LexicalError(error, currentPos);
             buffer.Clear();
+
+            throw new LexicalError(error, currentPos);
         }
 
         private void Advance()

@@ -6,37 +6,25 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
-    public abstract class Exception
+    public class ExMessage
     {
-        string message;
-        Position pos;
-        public string? Type { get; protected set; }
-
-        public Exception(string message, Position pos)
+        public static string Form(string type, string message, Position pos)
         {
-            this.message = message;
-            this.pos = pos;
-        }
-
-        public void What()
-        {
-            Console.WriteLine($"{Type}: {message} on line {pos.line} column {pos.column}.");
+            return $"{type}: {message} on line {pos.line} column {pos.column}.";
         }
     }
 
     public class LexicalError : Exception
     {
-        public LexicalError(string message, Position pos) : base(message, pos)
-        {
-            Type = "LexicalError";
-        }
+        private static string type = "LexicalError";
+        public LexicalError(string message, Position pos) 
+            : base(ExMessage.Form(type, message, pos)) { }
     }
 
     public class SyntaxError : Exception
     {
-        public SyntaxError(string message, Position pos) : base(message, pos)
-        {
-            Type = "SyntaxError";
-        }
+        private static string type = "SyntaxError";
+        public SyntaxError(string message, Position pos)
+            : base(ExMessage.Form(type, message, pos)) { }
     }
 }
