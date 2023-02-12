@@ -10,7 +10,7 @@ namespace MiniPL
     {
         public static string Form(string type, string message, Position pos)
         {
-            return $"{type}: {message} on line {pos.line} column {pos.column}.";
+            return $"{type}: {message} on line {pos.line} column {pos.column}";
         }
     }
 

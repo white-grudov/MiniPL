@@ -3,7 +3,9 @@
  * 03.02, 1 hour,  started implementing token table
  * 05.02, 6 hours, finished main scanner logic, removed token table, started implementing parser
  * 08.02, 3 hours, started implementing parser, small fixes for scanner
- * 09.02, 2 hours, continued implementing parser
+ * 09.02, 4 hours, continued implementing parser
+ * 11.02, 2 hours, continued implementing parser
+ * 12.02, 4 hours, finished parser
  */
 namespace MiniPL
 {

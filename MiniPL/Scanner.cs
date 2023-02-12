@@ -7,57 +7,10 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
-    enum TokenType
-    {
-        // single-char tokens
-        LPAREN, RPAREN, SEMICOLON, COLON,
-        PLUS, MINUS, DIV, MUL,
-        EQ, LT, GT, AND, NOT,
-
-        // multi-char tokens
-        ASSIGN, DOUBLEDOT, 
-
-        // literals
-        IDENTIFIER, INT_LITERAL, STRING_LITERAL,
-
-        // keywords
-        FOR, IN, IF, ELSE, DO, END, VAR, PRINT, READ,
-        INT, STRING, BOOL, ASSERT,
-
-        EOF, ILLEGAL
-    }
-
-    public struct Position
-    {
-        public int line;
-        public int column;
-        public Position(int line, int column)
-        {
-            this.line = line;
-            this.column = column;
-        }
-        public override string ToString()
-        {
-            return string.Format("Ln: {0, -4} Cl: {1, -4}", line, column);
-        }
-    }
-    struct Token
-    {
-        public TokenType Type { get; }
-        public string Value { get; }
-        public Position Pos { get; }
-
-        public Token(TokenType type, string value, Position pos)
-        {
-            Type = type;
-            Value = value;
-            Pos = pos;
-        }
-    }
     internal class Scanner
     {
         string filename;
-        string? file;
+        public string? file;
 
         char currentChar = '\0';
         bool isIllegalToken = false;
@@ -111,16 +64,17 @@ namespace MiniPL
             // scanning the file
             this.filename = filename;
             file = ReadFile();
-            if (file == null)
-            {
-                throw new LexicalError("Source file is empty", currentPos);
-            }
         }
 
         public void Tokenize()
         {
             // getting the char queue
+            if (file == null)
+            {
+                throw new LexicalError("Source file is empty", currentPos);
+            }
             symbols = new Queue<char>(file);
+
             while (symbols.Count > 0 && !isIllegalToken)
             {
                 Advance();
@@ -202,7 +156,7 @@ namespace MiniPL
             }
             Advance();
             buffer.Append(currentChar);
-            AddToken(TokenType.STRING, buffer.ToString());
+            AddToken(TokenType.STRING_LITERAL, buffer.ToString());
 
             buffer.Clear();
         }
