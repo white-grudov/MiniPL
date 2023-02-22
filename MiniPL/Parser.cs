@@ -8,10 +8,10 @@ namespace MiniPL
 {
     class AST
     {
-        public INode Root;
-        public AST(Token token)
+        public ProgNode Root;
+        public AST()
         {
-            Root = new ProgNode(token);
+            Root = new ProgNode();
         }
     }
     internal class Parser
@@ -19,26 +19,36 @@ namespace MiniPL
         public AST Ast { get; }
         public Scanner Scanner { get; }
 
-        private Token dummyToken = new Token(TokenType.DUMMY, "", new Position(-1, -1));
         private Token currentToken;
 
-        bool insideForStmt = false;
-        bool insideIfStmt = false;
+        private bool insideForStmt = false;
+        private bool insideIfStmt = false;
 
-        private TokenType[] typeTypes =  { TokenType.INT, TokenType.STRING, TokenType.BOOL };
-        private TokenType[] ignoreList = { TokenType.DO, TokenType.COLON, TokenType.IN, TokenType.SEMICOLON };
-        private TokenType[] varTypes =   { TokenType.VAR, TokenType.IDENTIFIER, TokenType.COLON };
-        private TokenType[] identTypes = { TokenType.IDENTIFIER, TokenType.ASSIGN };
-        private TokenType[] forTypes =   { TokenType.FOR, TokenType.IDENTIFIER, TokenType.IN };
-        private TokenType[] readTypes =  { TokenType.READ, TokenType.IDENTIFIER };
-        private TokenType[] opndTypes =  { TokenType.INT_LITERAL, TokenType.STRING_LITERAL,
-                                           TokenType.IDENTIFIER, TokenType.LPAREN };
-        private TokenType[] opTypes =    { TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
-                                           TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND };
-
+        private List<TokenType> opndTypes = new List<TokenType>()
+        {
+            TokenType.INT_LITERAL, TokenType.STRING_LITERAL, TokenType.IDENTIFIER, TokenType.LPAREN
+        };
+        private List<TokenType> opTypes = new List<TokenType>()
+        {
+            TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
+            TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND
+        };
+        private List<object> expectedDeclTokens = new List<object>()
+        {
+            TokenType.VAR, TokenType.IDENTIFIER, TokenType.COLON,
+            new List<TokenType> { TokenType.INT, TokenType.STRING, TokenType.BOOL }
+        };
+        private List<TokenType> expectedAssignTokens = new List<TokenType>()
+        {
+            TokenType.IDENTIFIER, TokenType.ASSIGN
+        };
+        private List<TokenType> expectedForTokens = new List<TokenType>()
+        {
+            TokenType.FOR, TokenType.IDENTIFIER, TokenType.IN
+        };
         public Parser(string filename)
         {
-            Ast = new AST(dummyToken);
+            Ast = new AST();
             Scanner = new Scanner(filename);
         }
         public void GenerateTokens()
@@ -50,23 +60,24 @@ namespace MiniPL
         }
         public void Parse()
         {
-            Ast.Root.AddChild(AddStmtsNode());
+            Ast.Root.AddStmts(AddStmtsNode());
         }
-        private INode AddStmtsNode()
+        private StmtsNode AddStmtsNode()
         {
-            INode stmts = new StmtsNode(dummyToken);
+            StmtsNode stmts = new StmtsNode();
 
             // inside if or for statement
             if (insideForStmt || insideIfStmt)
             {
                 while (Lookahead().Type != TokenType.END)
                 {
+                    if (insideIfStmt && Lookahead().Type == TokenType.ELSE)
+                        return stmts;
                     stmts.AddChild(AddStmtNode());
                     NextToken();
                 }
                 NextToken();
                 ExpectToken(insideForStmt ? TokenType.FOR : TokenType.IF);
-                NextToken();
                 return stmts;
             }
             while (!IsAtEnd())
@@ -77,28 +88,28 @@ namespace MiniPL
 
             return stmts;
         }
-        private INode AddStmtNode()
+        private StmtNode AddStmtNode()
         {
-            INode stmt = new StmtNode(dummyToken);
+            StmtNode stmt;
             switch (Lookahead().Type)
             {
                 case TokenType.VAR:
-                    AddVarStmt(ref stmt);
+                    stmt = AddDeclStmt();
                     break;
                 case TokenType.IDENTIFIER:
-                    AddIdentStmt(ref stmt);
+                    stmt = AddAssignStmt();
                     break;
                 case TokenType.FOR:
-                    AddForStmt(ref stmt);
+                    stmt = AddForStmt();
                     break;
                 case TokenType.IF:
-                    AddIfStmt(ref stmt);
+                    stmt = AddIfStmt();
                     break;
                 case TokenType.PRINT:
-                    AddPrintStmt(ref stmt);
+                    stmt = AddPrintStmt();
                     break;
                 case TokenType.READ:
-                    AddReadStmt(ref stmt);
+                    stmt = AddReadStmt();
                     break;
                 default:
                     throw new SyntaxError($"Illegal token {currentToken.Type}", currentToken.Pos);            
@@ -106,131 +117,202 @@ namespace MiniPL
 
             return stmt;
         }
-        private void AddVarStmt(ref INode stmt)
+        private DeclNode AddDeclStmt()
         {
-            foreach (var type in varTypes)
-                AddChildToStmt(ref stmt, type);
-            AddChildToStmt(ref stmt, typeTypes);
-
-            if (Lookahead().Type == TokenType.SEMICOLON)
+            List<INode> childNodes = new List<INode>();
+            foreach (var type in expectedDeclTokens)
             {
-                return;
+                INode? node = GetChild(type);
+                if (node != null) childNodes.Add(node);
             }
-            AddChildToStmt(ref stmt, TokenType.ASSIGN);
-            stmt.AddChild(AddExpr());
 
+            DeclNode declNode = new DeclNode((IdentNode)childNodes[0], (TypeNode)childNodes[1]);
+
+            if (Lookahead().Type != TokenType.SEMICOLON)
+            {
+                ExpectToken(TokenType.ASSIGN);
+                declNode.AddExpr(AddExpr());
+            }
+
+            return declNode;
         }
-        private void AddIdentStmt(ref INode stmt)
+        private AssignNode AddAssignStmt()
         {
-            foreach (var type in identTypes)
-                AddChildToStmt(ref stmt, type);
-            stmt.AddChild(AddExpr());
+            List<INode> childNodes = new List<INode>();
+            foreach (var type in expectedAssignTokens)
+            {
+                INode? node = GetChild(type);
+                if (node != null) childNodes.Add(node);
+            }
 
+            return new AssignNode((IdentNode)childNodes[0], AddExpr());
         }
-        private void AddForStmt(ref INode stmt)
+        private ForNode AddForStmt()
         {
-            foreach (var type in forTypes)
-                AddChildToStmt(ref stmt, type);
-            stmt.AddChild(AddExpr());
-
-            AddChildToStmt(ref stmt, TokenType.DOUBLEDOT);
-            stmt.AddChild(AddExpr());
-
-            AddChildToStmt(ref stmt, TokenType.DO);
+            List<INode> childNodes = new List<INode>();
+            foreach (var type in expectedForTokens)
+            {
+                INode? node = GetChild(type);
+                if (node != null) childNodes.Add(node);
+            }
+            childNodes.Add(AddExpr());
+            ExpectToken(TokenType.DOUBLEDOT);
+            childNodes.Add(AddExpr());
+            ExpectToken(TokenType.DO);
 
             insideForStmt = true;
-            INode stmts = AddStmtsNode();
+            ForNode forNode = new ForNode(
+                (IdentNode)childNodes[0], (ExprNode)childNodes[1], (ExprNode)childNodes[2], AddStmtsNode());
             insideForStmt = false;
-            stmt.AddChild(stmts);
-        }
-        private void AddIfStmt(ref INode stmt)
-        {
-            AddChildToStmt(ref stmt, TokenType.IF);
-            stmt.AddChild(AddExpr());
 
-            AddChildToStmt(ref stmt, TokenType.DO);
+            return forNode;
+        }
+        private IfNode AddIfStmt()
+        {
+            List<INode> childNodes = new List<INode>();
+            ExpectToken(TokenType.IF);
+            childNodes.Add(AddExpr());
+
+            ExpectToken(TokenType.DO);
 
             insideIfStmt = true;
-            INode stmts = AddStmtsNode();
+            IfNode ifNode = new IfNode((ExprNode)childNodes[0], AddStmtsNode());
+
+            if (Lookahead().Type != TokenType.SEMICOLON)
+            {
+                ExpectToken(TokenType.ELSE);
+                ifNode.AddElseStmts(AddStmtsNode());
+            }
             insideIfStmt = false;
-            stmt.AddChild(stmts);
+
+            return ifNode;
         }
-        private void AddPrintStmt(ref INode stmt)
+        private PrintNode AddPrintStmt()
         {
-            AddChildToStmt(ref stmt, TokenType.PRINT);
-            stmt.AddChild(AddExpr());
+            ExpectToken(TokenType.PRINT);
+            return new PrintNode(AddExpr());
         }
-        private void AddReadStmt(ref INode stmt)
+        private ReadNode AddReadStmt()
         {
-            foreach (var type in readTypes)
-                AddChildToStmt(ref stmt, type);
+            List<INode> childNodes = new List<INode>();
+            ExpectToken(TokenType.READ);
+            INode? node = GetChild(TokenType.IDENTIFIER);
+            if (node != null) childNodes.Add(node);
+
+            return new ReadNode((IdentNode)childNodes[0]);
         }
-        private INode AddExpr()
+        private ExprNode AddExpr()
         {
+            List<INode> childNodes = new List<INode>();
             bool unOp = false;
-            INode expr = new ExprNode(dummyToken);
 
             if (Lookahead().Type == TokenType.NOT)
             {
-                unOp = true;
-                NextToken();
-                expr.AddChild(currentToken);
+                INode? node = GetChild(TokenType.NOT);
+                if (node != null) childNodes.Add(node);
             }
             ExpectToken(opndTypes);
-            expr.AddChild(AddOpndNode());
+            childNodes.Add(AddOpndNode());
 
-            if (unOp || !opTypes.Contains(Lookahead().Type)) return expr;
+            ExprNode exprNode = new ExprNode((OpndNode)childNodes[childNodes.Count - 1]);
+            if (unOp)
+            {
+                exprNode.AddUnOp((UnOpNode)childNodes[0]);
+            }
+            else if (opTypes.Contains(Lookahead().Type))
+            {
+                childNodes.Clear();
+                INode? node = GetChild(opTypes);
+                if (node != null) childNodes.Add(node);
 
-            ExpectToken(opTypes);
-            expr.AddChild(currentToken);
+                ExpectToken(opndTypes);
+                childNodes.Add(AddOpndNode());
 
-            ExpectToken(opndTypes);
-            expr.AddChild(AddOpndNode());
-
-            return expr;
+                exprNode.AddRightOpnd((OpNode)childNodes[0], (OpndNode)childNodes[1]);
+            }
+            return exprNode;
         }
-        private INode AddOpndNode()
+        private OpndNode AddOpndNode()
         {
-            INode opndNode = new OpndNode(dummyToken);
+            List<INode> childNodes = new List<INode>();
             if (currentToken.Type == TokenType.LPAREN)
             {
-                opndNode.AddChild(AddExpr());
+                childNodes.Add(AddExpr());
                 ExpectToken(TokenType.RPAREN);
             }
-            else opndNode.AddChild(currentToken);
+            else
+            {
+                INode? node = GetNode(currentToken);
+                if (node != null) childNodes.Add(node);
+            }
+            OpndNode opndNode = new OpndNode((OpndNodeChild)childNodes[0]);
+
             return opndNode;
         }
-        private void AddChildToStmt(ref INode stmt, TokenType type)
+        private INode? GetChild(object type)
         {
             ExpectToken(type);
-            if (!ignoreList.Contains(type))
-                stmt.AddChild(currentToken);
+            return GetNode(currentToken);
         }
-        private void AddChildToStmt(ref INode stmt, TokenType[] types)
+        private INode? GetNode(Token token)
         {
-            ExpectToken(types);
-            stmt.AddChild(currentToken);
+            List<TokenType> opNodes = new List<TokenType>() {
+                TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
+                TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND
+            };
+            List<TokenType> typeNodes = new List<TokenType>() {
+                TokenType.INT, TokenType.STRING, TokenType.BOOL
+            };
+            switch (token.Type)
+            {
+                case TokenType.IDENTIFIER:
+                    return new IdentNode(token);
+                case var _ when typeNodes.Contains(token.Type):
+                    return new TypeNode(token);
+                case TokenType.INT_LITERAL:
+                    return new IntNode(token);
+                case TokenType.STRING_LITERAL:
+                    return new StrNode(token);
+                case var _ when opNodes.Contains(token.Type):
+                    return new OpNode(token);
+                case TokenType.NOT:
+                    return new UnOpNode(token);
+                default:
+                    return null;
+            }
         }
         private void NextToken()
         {
-            currentToken = TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Dequeue() : dummyToken;
+            currentToken = TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Dequeue() 
+                : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
         }
-        private void ExpectToken(TokenType type)
+        private void ExpectToken(object type)
         {
-            if (Lookahead().Type != type)
-                throw new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})",
-                    currentToken.Pos);
-            NextToken();
-        }
-        private void ExpectToken(TokenType[] types)
-        {
-            if (!types.Contains(Lookahead().Type))
-                throw new SyntaxError($"Unexpected token {Lookahead().Type}", currentToken.Pos);
+            if (type.GetType() == typeof(TokenType))
+            {
+                if (Lookahead().Type != (TokenType)type)
+                {
+                    throw new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})",
+                        currentToken.Pos);
+                }
+            }
+            else if (type.GetType() == typeof(List<TokenType>))
+            {
+                if (!((List<TokenType>)type).Contains(Lookahead().Type))
+                {
+                    throw new SyntaxError($"Unexpected token {Lookahead().Type}", currentToken.Pos);
+                }
+            }
+            else
+            {
+                throw new InvalidCastException("Unallowed token type");
+            }
             NextToken();
         }
         private Token Lookahead()
         {
-            return TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Peek() : dummyToken;
+            return TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Peek() 
+                : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
         }
         private bool IsAtEnd()
         {
