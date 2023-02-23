@@ -54,9 +54,6 @@ namespace MiniPL
         public void GenerateTokens()
         {
             Scanner.Tokenize();
-
-            foreach (var token in Scanner.Tokens)
-                Console.WriteLine("{0, -15} {1, -30} {2, 0}", token.Type, token.Value, token.Pos);
         }
         public void Parse()
         {

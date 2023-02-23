@@ -27,4 +27,10 @@ namespace MiniPL
         public SyntaxError(string message, Position pos)
             : base(ExMessage.Form(type, message, pos)) { }
     }
+    public class SemanticError : Exception
+    {
+        private static string type = "SemanticError";
+        public SemanticError(string message, Position pos)
+            : base(ExMessage.Form(type, message, pos)) { }
+    }
 }

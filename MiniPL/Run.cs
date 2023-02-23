@@ -6,15 +6,17 @@
  * 09.02, 4 hours, continued implementing parser
  * 11.02, 2 hours, continued implementing parser
  * 12.02, 4 hours, finished parser
+ * 22.02, 8 hours, rewrote parser, started implementing semantic analyzer
+ * 23.02, 2 hours, continued implementing semantic analyzer
  */
 namespace MiniPL
 {
-    internal class Program
+    internal class Run
     {
         static void Main(string[] args)
         {
             string filename = "C:\\Users\\whitegrudov\\source\\repos\\MiniPL\\MiniPL\\test.mpl";
-            Interpreter interpreter = new Interpreter(filename);
+            Main interpreter = new Main(filename, true);
             interpreter.Run();
         }
     }

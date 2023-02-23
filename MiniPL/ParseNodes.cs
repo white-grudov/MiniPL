@@ -10,10 +10,12 @@ namespace MiniPL
     interface INode
     {
         public List<INode> GetAllChildren();
+        public object? Accept(IVisitor visitor);
     }
     abstract class Node : INode
     {
         public abstract List<INode> GetAllChildren();
+        public abstract object? Accept(IVisitor visitor);
     }
     // root node
     class ProgNode : Node
@@ -31,6 +33,10 @@ namespace MiniPL
         {
             if (Stmts == null) return new List<INode>();
             return new List<INode>() { Stmts };
+        }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     abstract class StmtNode : Node { }
@@ -54,6 +60,10 @@ namespace MiniPL
             }
             return children;
         }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
     class DeclNode : StmtNode
     {
@@ -76,6 +86,10 @@ namespace MiniPL
             if (Expr != null) children.Add(Expr);
             return children;
         }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
     class AssignNode : StmtNode
     {
@@ -89,6 +103,10 @@ namespace MiniPL
         public override List<INode> GetAllChildren()
         {
             return new List<INode>() { Ident, Expr };
+        }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     class ForNode : StmtNode
@@ -107,6 +125,10 @@ namespace MiniPL
         public override List<INode> GetAllChildren()
         {
             return new List<INode>() { Ident, StartExpr, EndExpr, Stmts };
+        }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     class IfNode : StmtNode
@@ -130,6 +152,10 @@ namespace MiniPL
             if (ElseStmts != null) children.Add(ElseStmts);
             return children;
         }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
     class ReadNode : StmtNode
     {
@@ -141,6 +167,10 @@ namespace MiniPL
         public override List<INode> GetAllChildren()
         {
             return new List<INode>() { Ident };
+        }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     class PrintNode : StmtNode
@@ -154,8 +184,12 @@ namespace MiniPL
         {
             return new List<INode>() { Expr };
         }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
-    class ExprNode : Node
+    class ExprNode : Node, OpndNodeChild
     {
         private enum States
         {
@@ -203,6 +237,10 @@ namespace MiniPL
                     return new List<INode>();
             }
         }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
     interface OpndNodeChild : INode { }
     class OpndNode : Node
@@ -215,6 +253,10 @@ namespace MiniPL
         public override List<INode> GetAllChildren()
         {
             return new List<INode>() { Child };
+        }
+        public override object? Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     class TokenNode : Node
@@ -231,6 +273,10 @@ namespace MiniPL
         public string GetValue()
         {
             return Token.Value;
+        }
+        public override object Accept(IVisitor visitor)
+        {
+            return visitor.Visit(this);
         }
     }
     class OpNode : TokenNode

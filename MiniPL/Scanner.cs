@@ -57,7 +57,7 @@ namespace MiniPL
             {'n', '\n'}, {'t', '\t'}, {'\'', '\''}, {'\"', '\"'},
             {'r', '\r'}, {'f', '\f'}, {'v', '\v'}
         };
-        List<char> allowedChars = new List<char>() {')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t'};
+        List<char> allowedChars = new List<char>() { ')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t' };
 
         public Scanner(string filename)
         {
@@ -84,7 +84,7 @@ namespace MiniPL
                     case var _ when blankSpaces.Contains(currentChar):
                         break;
 
-                    // operators
+                    // single character tokens
                     case var _ when singleChar.ContainsKey(currentChar):
                         AddToken(singleChar[currentChar], currentChar.ToString());
                         break;
@@ -125,7 +125,7 @@ namespace MiniPL
         {
             buffer.Append(currentChar);
             bool isEscapeChar = false;
-            while ((Lookahead() != '\"' && !isEscapeChar) || isEscapeChar)
+            while (Lookahead() != '\"' && !isEscapeChar || isEscapeChar)
             {
                 if (Lookahead() == '\n')
                 {
@@ -192,7 +192,7 @@ namespace MiniPL
         {
             buffer.Append(currentChar);
             while (char.IsDigit(Lookahead()))
-            { 
+            {
                 Advance();
                 buffer.Append(currentChar);
             }
