@@ -10,15 +10,23 @@
  * 23.02, 2 hours, continued implementing semantic analyzer
  * 02.03, 7 hours, fixed token generation, finished semantic analyzer
  */
+
+/* What to do:
+ * - Interpreter part
+ * - Console input/output
+ * - More robust error handling
+ * - Rearrangement of modules
+ * - Testing
+ */
 namespace MiniPL
 {
-    internal class Run
+    internal class MiniPL
     {
         static void Main(string[] args)
         {
-            string filename = "C:\\Users\\whitegrudov\\source\\repos\\MiniPL\\MiniPL\\test.mpl";
-            Main interpreter = new Main(filename, true);
-            interpreter.Run();
+            if (args.Length != 1) return;
+            Application app = new Application(args[0], true);
+            app.Run();
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiniPL
+﻿namespace MiniPL
 {
     interface IVisitor
     {
@@ -25,29 +19,24 @@ namespace MiniPL
         private readonly AST Ast;
         private readonly Context Context;
 
-        private Dictionary<string, List<string>> allowedTypes;
-        private List<string> boolOperators;
+        private Dictionary<string, List<string>> allowedTypes = new Dictionary<string, List<string>>
+        {
+            { TFS(TokenType.PLUS), new List<string>() { TFS(TokenType.INT), TFS(TokenType.STRING) } },
+            { TFS(TokenType.MINUS), new List<string>() { TFS(TokenType.INT) } },
+            { TFS(TokenType.DIV), new List<string>() { TFS(TokenType.INT) } },
+            { TFS(TokenType.MUL), new List<string>() { TFS(TokenType.INT) } },
+
+            { TFS(TokenType.EQ),
+                new List<string>() { TFS(TokenType.INT), TFS(TokenType.STRING), TFS(TokenType.BOOL) } },
+            { TFS(TokenType.LT), new List<string> { TFS(TokenType.INT), TFS(TokenType.BOOL) } },
+            { TFS(TokenType.GT), new List<string> { TFS(TokenType.INT), TFS(TokenType.BOOL) } },
+            { TFS(TokenType.AND), new List<string> { TFS(TokenType.BOOL) } }
+        };
+        private List<string> boolOperators = new List<string> { TFS(TokenType.EQ), TFS(TokenType.LT), TFS(TokenType.GT) };
         public SemanticAnalyzer(AST ast)
         {
             Ast = ast;
             Context = new Context();
-            allowedTypes = new Dictionary<string, List<string>>
-            {
-                { TFS(TokenType.PLUS), new List<string>() { TFS(TokenType.INT), TFS(TokenType.STRING) } },
-                { TFS(TokenType.MINUS), new List<string>() { TFS(TokenType.INT) } },
-                { TFS(TokenType.DIV), new List<string>() { TFS(TokenType.INT) } },
-                { TFS(TokenType.MUL), new List<string>() { TFS(TokenType.INT) } },
-
-                { TFS(TokenType.EQ),
-                    new List<string>() { TFS(TokenType.INT), TFS(TokenType.STRING), TFS(TokenType.BOOL) } },
-                { TFS(TokenType.LT), new List<string> { TFS(TokenType.INT), TFS(TokenType.BOOL) } },
-                { TFS(TokenType.GT), new List<string> { TFS(TokenType.INT), TFS(TokenType.BOOL) } },
-                { TFS(TokenType.AND), new List<string> { TFS(TokenType.BOOL) } }
-            };
-            boolOperators = new List<string>()
-            {
-                TFS(TokenType.EQ), TFS(TokenType.LT), TFS(TokenType.GT)
-            };
     }
         public void Analyze()
         {
@@ -201,7 +190,7 @@ namespace MiniPL
                 return Context.GetVariableType(node.Token.Value);
             return TFS(node.Token.Type);
         }
-        private string TFS(TokenType type)
+        private static string TFS(TokenType type)
         {
             return TokenTypeExtenstions.ToFriendlyString(type);
         }

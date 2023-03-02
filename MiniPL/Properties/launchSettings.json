@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MiniPL": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\\\Users\\\\whitegrudov\\\\source\\\\repos\\\\MiniPL\\\\MiniPL\\\\test.mpl"
+    }
+  }
+}

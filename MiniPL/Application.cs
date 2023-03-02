@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-namespace MiniPL
+﻿namespace MiniPL
 {
-    internal class Main
+    internal class Application
     {
         private readonly Parser Parser;
         private readonly string Filename;
@@ -18,7 +9,7 @@ namespace MiniPL
 
         private bool debugMode = false;
 
-        public Main(string filename, bool debugMode = false)
+        public Application(string filename, bool debugMode = false)
         {
             this.debugMode = debugMode;
 
