@@ -207,7 +207,7 @@ namespace MiniPL
             ExpectToken(opndTypes);
             childNodes.Add(AddOpndNode());
 
-            ExprNode exprNode = new ExprNode((OpndNode)childNodes[childNodes.Count - 1]);
+            ExprNode exprNode = new ExprNode((OpndNode)childNodes[childNodes.Count - 1], currentToken.Pos);
             if (unOp)
             {
                 exprNode.AddUnOp((UnOpNode)childNodes[0]);

@@ -8,6 +8,7 @@
  * 12.02, 4 hours, finished parser
  * 22.02, 8 hours, rewrote parser, started implementing semantic analyzer
  * 23.02, 2 hours, continued implementing semantic analyzer
+ * 02.03, 7 hours, fixed token generation, finished semantic analyzer
  */
 namespace MiniPL
 {

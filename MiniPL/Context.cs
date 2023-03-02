@@ -38,5 +38,17 @@ namespace MiniPL
         {
             return Table.ContainsKey(name);
         }
+        public TableEntry GetVariable(string name)
+        {
+            return Table[name];
+        }
+        public string GetVariableType(string name)
+        {
+            return Table[name].Type;
+        }
+        public object? GetVariableValue(string name)
+        {
+            return Table[name].Value;
+        }
     }
 }

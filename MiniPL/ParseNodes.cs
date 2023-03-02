@@ -199,14 +199,16 @@ namespace MiniPL
         public OpndNode LeftOpnd { get; protected set; }
         public OpNode? Op { get; protected set; }
         public OpndNode? RightOpnd { get; protected set; }
+        public Position Pos { get; protected set; }
 
         private States state = States.ONLY_LEFT_OPND;
-        public ExprNode(OpndNode leftOpnd)
+        public ExprNode(OpndNode leftOpnd, Position pos)
         {
             LeftOpnd = leftOpnd;
             UnOp = null;
             Op = null;
             RightOpnd = null;
+            Pos = pos;
         }
         public void AddRightOpnd(OpNode op, OpndNode rightOpnd)
         {
@@ -237,7 +239,7 @@ namespace MiniPL
                     return new List<INode>();
             }
         }
-        public override object? Accept(IVisitor visitor)
+        public override object Accept(IVisitor visitor)
         {
             return visitor.Visit(this);
         }
@@ -246,15 +248,24 @@ namespace MiniPL
     class OpndNode : Node
     {
         public INode Child { get; protected set; }
+        public Position Pos { get; protected set; }
         public OpndNode(OpndNodeChild child)
         {
             Child = child;
+            if (child.GetType() == typeof(ExprNode))
+            {
+                Pos = ((ExprNode)child).Pos;
+            }
+            else
+            {
+                Pos = ((TokenNode)child).Token.Pos;
+            }
         }
         public override List<INode> GetAllChildren()
         {
             return new List<INode>() { Child };
         }
-        public override object? Accept(IVisitor visitor)
+        public override object Accept(IVisitor visitor)
         {
             return visitor.Visit(this);
         }

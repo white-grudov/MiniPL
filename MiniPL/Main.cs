@@ -31,21 +31,15 @@ namespace MiniPL
         {
             try
             { 
-                // if (debugMode) PrintTokens();
                 Parser.Parse();
                 if (debugMode) PrintAST(Parser.Ast.Root);
-                // Analyzer.Analyze();
+                Analyzer.Analyze();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
         }
-/*        private void PrintTokens()
-        {
-            foreach (var token in Parser.Scanner.Tokens)
-                Console.WriteLine("{0, -15} {1, -30} {2, 0}", token.Type, token.Value, token.Pos);
-        }*/
         private void PrintAST(INode node)
         {
             if (node == null) return;

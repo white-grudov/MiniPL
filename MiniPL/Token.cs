@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
-    enum TokenType
+    public enum TokenType
     {
         // single-char tokens
         LPAREN, RPAREN, SEMICOLON, COLON,
@@ -24,6 +24,23 @@ namespace MiniPL
         INT, STRING, BOOL, ASSERT,
 
         DUMMY, EOF, ILLEGAL
+    }
+    public static class TokenTypeExtenstions
+    {
+        public static string ToFriendlyString(this TokenType me)
+        {
+            switch (me)
+            {
+                case TokenType.INT: case TokenType.INT_LITERAL:
+                    return "int";
+                case TokenType.STRING: case TokenType.STRING_LITERAL:
+                    return "string";
+                case TokenType.BOOL:
+                    return "bool";
+                default:
+                    return me.ToString().ToLower();
+            }
+        }
     }
 
     public struct Position
