@@ -30,9 +30,8 @@ namespace MiniPL
         public void Run()
         {
             try
-            {
-                Parser.GenerateTokens();
-                if (debugMode) PrintTokens();
+            { 
+                // if (debugMode) PrintTokens();
                 Parser.Parse();
                 if (debugMode) PrintAST(Parser.Ast.Root);
                 // Analyzer.Analyze();
@@ -42,11 +41,11 @@ namespace MiniPL
                 Console.WriteLine(e.Message);
             }
         }
-        private void PrintTokens()
+/*        private void PrintTokens()
         {
             foreach (var token in Parser.Scanner.Tokens)
                 Console.WriteLine("{0, -15} {1, -30} {2, 0}", token.Type, token.Value, token.Pos);
-        }
+        }*/
         private void PrintAST(INode node)
         {
             if (node == null) return;

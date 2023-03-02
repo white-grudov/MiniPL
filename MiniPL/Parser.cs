@@ -51,10 +51,6 @@ namespace MiniPL
             Ast = new AST();
             Scanner = new Scanner(filename);
         }
-        public void GenerateTokens()
-        {
-            Scanner.Tokenize();
-        }
         public void Parse()
         {
             Ast.Root.AddStmts(AddStmtsNode());
@@ -280,8 +276,8 @@ namespace MiniPL
         }
         private void NextToken()
         {
-            currentToken = TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Dequeue() 
-                : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
+            Scanner.Tokenize();
+            currentToken = !IsAtEnd() ? Scanner.CurrentToken : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
         }
         private void ExpectToken(object type)
         {
@@ -308,16 +304,11 @@ namespace MiniPL
         }
         private Token Lookahead()
         {
-            return TokensGenerated() && !IsAtEnd() ? Scanner.Tokens.Peek() 
-                : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
+            return !IsAtEnd() ? Scanner.NextToken : new Token(TokenType.ILLEGAL, "", new Position(-1, -1));
         }
         private bool IsAtEnd()
         {
-            return TokensGenerated() ? Scanner.Tokens.Count < 2 : false;
-        }
-        private bool TokensGenerated()
-        {
-            return Scanner.Tokens.Count != 0;
+            return Scanner.NextToken.Type == TokenType.EOF;
         }
     }
 }

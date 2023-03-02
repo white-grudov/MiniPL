@@ -17,8 +17,8 @@ namespace MiniPL
 
         Position currentPos = new Position(1, 0);
         Queue<char> symbols = new Queue<char>();
-        Queue<Token> tokens = new Queue<Token>();
-        public Queue<Token> Tokens { get { return tokens; } }
+        public Token CurrentToken { get; private set; }
+        public Token NextToken { get; private set; }
 
         StringBuilder buffer = new StringBuilder();
 
@@ -64,10 +64,6 @@ namespace MiniPL
             // scanning the file
             this.filename = filename;
             file = ReadFile();
-        }
-
-        public void Tokenize()
-        {
             // getting the char queue
             if (file == null)
             {
@@ -75,14 +71,20 @@ namespace MiniPL
             }
             symbols = new Queue<char>(file);
 
-            while (symbols.Count > 0 && !isIllegalToken)
+            Tokenize();
+        }
+
+        public void Tokenize()
+        {
+            if (symbols.Count > 0 && !isIllegalToken)
             {
                 Advance();
                 switch (currentChar)
                 {
                     // blank spaces
                     case var _ when blankSpaces.Contains(currentChar):
-                        break;
+                        Tokenize();
+                        return;
 
                     // single character tokens
                     case var _ when singleChar.ContainsKey(currentChar):
@@ -118,7 +120,7 @@ namespace MiniPL
                         break;
                 }
             }
-            if (!isIllegalToken) AddToken(TokenType.EOF, "");
+            else AddToken(TokenType.EOF, "");
         }
         // adds string literal token with escape symbols
         private void AddStringLiteral()
@@ -215,6 +217,7 @@ namespace MiniPL
             if (Lookahead() == '/')
             {
                 while (!IsAtEnd() && Lookahead() != '\n') Advance();
+                Tokenize();
             }
             // multi-line comment
             else if (Lookahead() == '*')
@@ -236,6 +239,7 @@ namespace MiniPL
                     IllegalToken("", "Unenclosed comment");
                     return;
                 }
+                Tokenize();
             }
             // divider
             else
@@ -316,7 +320,8 @@ namespace MiniPL
 
         private void AddToken(TokenType type, string value)
         {
-            tokens.Enqueue(new Token(type, value, new Position(currentPos.line, currentPos.column - value.Length + 1)));
+            CurrentToken = NextToken;
+            NextToken = new Token(type, value, new Position(currentPos.line, currentPos.column - value.Length + 1));
         }
 
         private string ReadFile()
