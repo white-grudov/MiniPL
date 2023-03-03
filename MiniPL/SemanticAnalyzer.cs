@@ -1,19 +1,5 @@
 ﻿namespace MiniPL
 {
-    interface IVisitor
-    {
-        object? Visit(ProgNode node);
-        object? Visit(StmtsNode node);
-        object? Visit(DeclNode node);
-        object? Visit(AssignNode node);
-        object? Visit(ForNode node);
-        object? Visit(IfNode node);
-        object? Visit(PrintNode node);
-        object? Visit(ReadNode node);
-        object Visit(ExprNode node);
-        object Visit(OpndNode node);
-        object Visit(TokenNode node);
-    }
     internal class SemanticAnalyzer : IVisitor
     {
         private readonly AST Ast;
@@ -36,7 +22,7 @@
         public SemanticAnalyzer(AST ast)
         {
             Ast = ast;
-            Context = new Context();
+            Context = Context.GetInstance();
     }
         public void Analyze()
         {
@@ -45,7 +31,7 @@
 
         public object? Visit(ProgNode node)
         {
-            if (node.Stmts != null) node.Stmts.Accept(this);
+            node.Stmts?.Accept(this);
             return null;
         }
 
@@ -77,7 +63,7 @@
 
         public object? Visit(AssignNode node)
         {
-            string name = (string)node.Ident.Accept(this);
+            string name = node.Ident.Token.Value;
             CheckVariableDeclared(name, node.Ident.Token.Pos);
 
             // add check for the type of variable and expr to be the same
@@ -149,7 +135,9 @@
             // expr has only one operand
             if (node.UnOp == null && node.Op == null)
             {
-                return node.LeftOpnd.Accept(this);
+                string type = (string)node.LeftOpnd.Accept(this);
+                node.Type = type;
+                return type;
             }
             // expr has unary operator
             else if (node.UnOp != null && node.Op == null)
@@ -158,6 +146,7 @@
                 string opndType = (string)node.LeftOpnd.Accept(this);
                 MatchTypes(desiredOpndType, opndType, node.LeftOpnd.Pos);
 
+                node.Type = opndType;
                 return opndType;
             }
             // expr has two operands
@@ -173,6 +162,7 @@
                     throw new SemanticError("Variable type dismatch", node.Op.Token.Pos);
                 }
 
+                node.Type = leftOpndType;
                 if (boolOperators.Contains(opType)) return TFS(TokenType.BOOL);
                 return leftOpndType;
             }

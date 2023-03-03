@@ -12,7 +12,6 @@
  */
 
 /* What to do:
- * - Interpreter part
  * - Console input/output
  * - More robust error handling
  * - Rearrangement of modules

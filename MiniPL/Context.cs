@@ -15,18 +15,29 @@
     internal class Context
     {
         public SymbolTable Table { get; protected set; }
-        public Context()
+        private static Context? _instance;
+        private Context()
         {
             Table = new SymbolTable();
+        }
+        public static Context GetInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = new Context();
+            }
+            return _instance;
         }
         public void Declare(string name, string type, object? value = null)
         {
             Table[name] = new TableEntry(type);
-            if (value != null) Assign(name, type, value);
+            if (value != null) Assign(name, value);
         }
-        public void Assign(string name, string type, object value)
+        public void Assign(string name, object value)
         {
-            Table[name] = new TableEntry(type, value);
+            TableEntry entry = Table[name];
+            entry.Value = value;
+            Table[name] = entry;
         }
         public bool ContainsVariable(string name)
         {

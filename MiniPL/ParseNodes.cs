@@ -4,12 +4,12 @@
     interface INode
     {
         public List<INode> GetAllChildren();
-        public object? Accept(IVisitor visitor);
+        public object Accept(IVisitor visitor);
     }
     abstract class Node : INode
     {
         public abstract List<INode> GetAllChildren();
-        public abstract object? Accept(IVisitor visitor);
+        public abstract object Accept(IVisitor visitor);
     }
     // root node
     class ProgNode : Node
@@ -194,6 +194,7 @@
         public OpNode? Op { get; protected set; }
         public OpndNode? RightOpnd { get; protected set; }
         public Position Pos { get; protected set; }
+        public string? Type { get; set; }
 
         private States state = States.ONLY_LEFT_OPND;
         public ExprNode(OpndNode leftOpnd, Position pos)

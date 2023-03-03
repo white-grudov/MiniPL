@@ -11,20 +11,39 @@
     public class LexicalError : Exception
     {
         private static string type = "LexicalError";
+        public Position Pos { get; private set; }
         public LexicalError(string message, Position pos) 
-            : base(ExMessage.Form(type, message, pos)) { }
+            : base(ExMessage.Form(type, message, pos))
+        {
+            Pos = pos;
+        }
     }
 
     public class SyntaxError : Exception
     {
         private static string type = "SyntaxError";
-        public SyntaxError(string message, Position pos)
-            : base(ExMessage.Form(type, message, pos)) { }
+        public Position Pos { get; private set; }
+        public SyntaxError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
+        {
+            Pos = pos;
+        }
     }
     public class SemanticError : Exception
     {
         private static string type = "SemanticError";
-        public SemanticError(string message, Position pos)
-            : base(ExMessage.Form(type, message, pos)) { }
+        public Position Pos { get; private set; }
+        public SemanticError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
+        {
+            Pos = pos;
+        }
+    }
+    public class RuntimeError : Exception
+    {
+        private static string type = "RuntimeError";
+        public Position Pos { get; private set; }
+        public RuntimeError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
+        {
+            Pos = pos;
+        }
     }
 }

@@ -2,10 +2,10 @@
 {
     internal class Application
     {
-        private readonly Parser Parser;
-        private readonly string Filename;
-        private readonly Context Context;
-        private readonly SemanticAnalyzer Analyzer;
+        private readonly Parser parser;
+        private readonly string filename;
+        private readonly SemanticAnalyzer analyzer;
+        private readonly Interpreter interpreter;
 
         private bool debugMode = false;
 
@@ -13,18 +13,19 @@
         {
             this.debugMode = debugMode;
 
-            Filename = filename;
-            Parser = new Parser(filename);
-            Context = new Context();
-            Analyzer = new SemanticAnalyzer(Parser.Ast);
+            this.filename = filename;
+            parser = new Parser(filename);
+            analyzer = new SemanticAnalyzer(parser.Ast);
+            interpreter = new Interpreter(parser.Ast);
         }
         public void Run()
         {
             try
             { 
-                Parser.Parse();
-                if (debugMode) PrintAST(Parser.Ast.Root);
-                Analyzer.Analyze();
+                parser.Parse();
+                // if (debugMode) PrintAST(parser.Ast.Root);
+                analyzer.Analyze();
+                interpreter.Interpret();
             }
             catch (Exception e)
             {

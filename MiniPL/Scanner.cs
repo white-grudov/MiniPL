@@ -317,7 +317,7 @@ namespace MiniPL
         {
             CurrentToken = NextToken;
             NextToken = new Token(type, value, new Position(currentPos.line, currentPos.column - value.Length + 1));
-            Console.WriteLine("{0, -15} {1, -30} {2, 0}", NextToken.Type, NextToken.Value, NextToken.Pos);
+            // Console.WriteLine("{0, -15} {1, -30} {2, 0}", NextToken.Type, NextToken.Value, NextToken.Pos);
         }
 
         private string ReadFile()
