@@ -14,7 +14,7 @@
             this.debugMode = debugMode;
 
             this.filename = filename;
-            parser = new Parser(filename);
+            parser = new Parser(filename, debugMode);
             analyzer = new SemanticAnalyzer(parser.Ast);
             interpreter = new Interpreter(parser.Ast);
         }
@@ -23,32 +23,14 @@
             try
             { 
                 parser.Parse();
-                // if (debugMode) PrintAST(parser.Ast.Root);
+                if (debugMode) parser.Ast.Root.Print();
                 analyzer.Analyze();
                 interpreter.Interpret();
             }
-            catch (Exception e)
+            catch (MiniPLException e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
-        private void PrintAST(INode node)
-        {
-            if (node == null) return;
-            Console.Write('(');
-            foreach (var child in node.GetAllChildren())
-            {
-                Console.Write($" {child.GetType()},".Replace("MiniPL.", "").Replace("Node", ""));
-                if (child.GetAllChildren().Count != 0)
-                {
-                    PrintAST(child);
-                }
-                else if (child is TokenNode)
-                {
-                    Console.Write($" [{((TokenNode)child).GetValue()}],");
-                }
-            }
-            Console.WriteLine("\b)");
         }
     }
 }

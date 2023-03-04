@@ -9,6 +9,7 @@
  * 22.02, 8 hours, rewrote parser, started implementing semantic analyzer
  * 23.02, 2 hours, continued implementing semantic analyzer
  * 02.03, 7 hours, fixed token generation, finished semantic analyzer
+ * 03.03, 3 hours, implemented interpreter
  */
 
 /* What to do:

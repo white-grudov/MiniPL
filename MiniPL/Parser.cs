@@ -40,10 +40,10 @@
         {
             TokenType.FOR, TokenType.IDENTIFIER, TokenType.IN
         };
-        public Parser(string filename)
+        public Parser(string filename, bool debugMode)
         {
             Ast = new AST();
-            Scanner = new Scanner(filename);
+            Scanner = new Scanner(filename, debugMode);
         }
         public void Parse()
         {

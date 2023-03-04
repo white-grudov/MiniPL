@@ -19,82 +19,80 @@ namespace MiniPL
         {
             Ast.Root.Accept(this);
         }
-        public object? Visit(ProgNode node)
+        public void Visit(ProgNode node)
         {
             node.Stmts?.Accept(this);
-            return null;
         }
 
-        public object? Visit(StmtsNode node)
+        public void Visit(StmtsNode node)
         {
             foreach (var child in node.GetAllChildren())
                 child.Accept(this);
-            return null;
         }
 
-        public object? Visit(DeclNode node)
+        public void Visit(DeclNode node)
         {
-            if (node.Expr == null) return null;
+            if (node.Expr == null) return;
             string name = node.Ident.Token.Value;
             object value = node.Expr.Accept(this);
             Context.Assign(name, value);
-            return null;
         }
 
-        public object? Visit(AssignNode node)
+        public void Visit(AssignNode node)
         {
             string name = node.Ident.Token.Value;
             object value = node.Expr.Accept(this);
             Context.Assign(name, value);
-            return null;
         }
 
-        public object? Visit(ForNode node)
+        public void Visit(ForNode node)
         {
             string indexName = node.Ident.Token.Value;
             int lowerBound = ToInt(node.StartExpr.Accept(this));
             int upperBound = ToInt(node.EndExpr.Accept(this));
 
-            if (upperBound < lowerBound)
-            {
-                throw new RuntimeError("Invalid loop parameters", node.StartExpr.Pos);
-            }
+            if (upperBound < lowerBound) return;
             for (int i = lowerBound; i <= upperBound; ++i)
             {
                 Context.Assign(indexName, i);
                 node.Stmts.Accept(this);
             }
-            return null;
         }
 
-        public object? Visit(IfNode node)
+        public void Visit(IfNode node)
         {
             bool condition = (bool)node.Expr.Accept(this);
             if (condition)
             {
                 node.IfStmts.Accept(this);
             }
-            else if (node.ElseStmts != null)
+            else
             {
-                node.ElseStmts.Accept(this);
+                node.ElseStmts?.Accept(this);
             }
-            return null;
         }
 
-        public object? Visit(PrintNode node)
+        public void Visit(PrintNode node)
         {
             object expr = node.Expr.Accept(this);
             Console.Write(expr);
-            return null;
         }
 
-        public object? Visit(ReadNode node)
+        public void Visit(ReadNode node)
         {
             string name = node.Ident.Token.Value;
             string? input = Console.ReadLine();
-            string value = input != null ? input : "";
+            string type = Context.GetVariableType(name);
+            if (type == "int")
+            {
+                if (!int.TryParse(input, out _))
+                {
+                    throw new RuntimeError("Unable to cast input to int", node.Ident.Token.Pos);
+                }
+            }
+
+            string value = input ?? "";
             Context.Assign(name, value);
-            return null;
         }
 
         public object Visit(ExprNode node)

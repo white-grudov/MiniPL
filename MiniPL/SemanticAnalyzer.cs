@@ -29,39 +29,36 @@
             Ast.Root.Accept(this);
         }
 
-        public object? Visit(ProgNode node)
+        public void Visit(ProgNode node)
         {
             node.Stmts?.Accept(this);
-            return null;
         }
 
-        public object? Visit(StmtsNode node)
+        public void Visit(StmtsNode node)
         {
             foreach (var child in node.GetAllChildren())
             {
                 child.Accept(this);
             }
-            return null;
         }
 
-        public object? Visit(DeclNode node)
+        public void Visit(DeclNode node)
         {
-            string name = node.Ident.GetValue();
-            string type = node.Type.GetValue();
+            string name = node.Ident.Token.Value;
+            string type = node.Type.Token.Value;
 
             if (Context.ContainsVariable(name))
             {
                 throw new SemanticError("Variable is already declared.", node.Ident.Token.Pos);
             }
             Context.Declare(name, type);
-            if (node.Expr == null) return null;
+            if (node.Expr == null) return;
 
             string exprType = (string)node.Expr.Accept(this);
             MatchTypes(exprType, type, node.Ident.Token.Pos);
-            return null;
         }
 
-        public object? Visit(AssignNode node)
+        public void Visit(AssignNode node)
         {
             string name = node.Ident.Token.Value;
             CheckVariableDeclared(name, node.Ident.Token.Pos);
@@ -71,7 +68,6 @@
             string varType = Context.GetVariableType(name);
 
             MatchTypes(exprType, varType, node.Expr.Pos);
-            return null;
         }
 
         /* checks for "for" node:
@@ -81,10 +77,10 @@
          * - first range value is less than second one (runtime error?)
          * - visit nested stmts +
          */
-        public object? Visit(ForNode node)
+        public void Visit(ForNode node)
         {
             string desiredType = TFS(TokenType.INT);
-            string indexName = node.Ident.GetValue();
+            string indexName = node.Ident.Token.Value;
 
             CheckVariableDeclared(indexName, node.Ident.Token.Pos);
 
@@ -97,37 +93,30 @@
             MatchTypes(upperBoundType, desiredType, node.EndExpr.Pos);
 
             node.Stmts.Accept(this);
-
-            return null;
         }
         /* checks for "if" node:
          * - condition is bool +
          * - visit if (and else) stmts +
          */
-        public object? Visit(IfNode node)
+        public void Visit(IfNode node)
         {
             string desiredType = TFS(TokenType.BOOL);
             string condType = (string)node.Expr.Accept(this);
             MatchTypes(condType, desiredType, node.Expr.Pos);
                                                                      
             node.IfStmts.Accept(this);
-            if (node.ElseStmts != null) node.ElseStmts.Accept(this);
-
-            return null;
+            node.ElseStmts?.Accept(this);
         }
 
-        public object? Visit(PrintNode node)
+        public void Visit(PrintNode node)
         {
             node.Expr.Accept(this);
-            return null;
         }
 
-        public object? Visit(ReadNode node)
+        public void Visit(ReadNode node)
         {
-            string name = node.Ident.GetValue();
+            string name = node.Ident.Token.Value;
             CheckVariableDeclared(name, node.Ident.Token.Pos);
-
-            return null;
         }
         // visit exprnode should return type
         public object Visit(ExprNode node)

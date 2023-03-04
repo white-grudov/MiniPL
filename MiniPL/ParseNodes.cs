@@ -1,15 +1,30 @@
-﻿namespace MiniPL
+﻿using System;
+
+namespace MiniPL
 {
     // for further expansion with visitor pattern
     interface INode
     {
         public List<INode> GetAllChildren();
-        public object Accept(IVisitor visitor);
+        public object? Accept(IVisitor visitor);
+        public void Print(int indent = 0);
     }
     abstract class Node : INode
     {
         public abstract List<INode> GetAllChildren();
-        public abstract object Accept(IVisitor visitor);
+        public abstract object? Accept(IVisitor visitor);
+        public void Print(int indent = 0)
+        {
+            string result = $"{new string(' ', indent)}{GetType().Name}";
+            if (this is TokenNode)
+                result += $" [{((TokenNode)this).Token.Value}]";
+            Console.WriteLine(result);
+
+            foreach (var node in GetAllChildren())
+            {
+                node.Print(indent + 2);
+            }
+        }
     }
     // root node
     class ProgNode : Node
@@ -30,7 +45,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     abstract class StmtNode : Node { }
@@ -56,7 +72,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class DeclNode : StmtNode
@@ -82,7 +99,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class AssignNode : StmtNode
@@ -100,7 +118,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class ForNode : StmtNode
@@ -122,7 +141,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class IfNode : StmtNode
@@ -148,7 +168,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class ReadNode : StmtNode
@@ -164,7 +185,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class PrintNode : StmtNode
@@ -180,7 +202,8 @@
         }
         public override object? Accept(IVisitor visitor)
         {
-            return visitor.Visit(this);
+            visitor.Visit(this);
+            return null;
         }
     }
     class ExprNode : Node, OpndNodeChild
@@ -222,27 +245,26 @@
         }
         public override List<INode> GetAllChildren()
         {
-            switch (state)
+            return state switch
             {
-                case States.ONLY_LEFT_OPND:
-                    return new List<INode>() { LeftOpnd };
-                case States.UN_OP:
-                    return new List<INode>() { UnOp, LeftOpnd };
-                case States.LEFT_RIGHT_OPND:
-                    return new List<INode>() { LeftOpnd, Op, RightOpnd };
-                default:
-                    return new List<INode>();
-            }
+                States.ONLY_LEFT_OPND => new List<INode>() { LeftOpnd },
+                States.UN_OP => new List<INode>() { UnOp, LeftOpnd },
+                States.LEFT_RIGHT_OPND => new List<INode>() { LeftOpnd, Op, RightOpnd },
+                _ => new List<INode>(),
+            };
         }
         public override object Accept(IVisitor visitor)
         {
             return visitor.Visit(this);
         }
     }
-    interface OpndNodeChild : INode { }
+    interface OpndNodeChild : INode
+    {
+        public new object Accept(IVisitor visitor);
+    }
     class OpndNode : Node
     {
-        public INode Child { get; protected set; }
+        public OpndNodeChild Child { get; protected set; }
         public Position Pos { get; protected set; }
         public OpndNode(OpndNodeChild child)
         {
@@ -275,10 +297,6 @@
         public override List<INode> GetAllChildren()
         {
             return new List<INode>();
-        }
-        public string GetValue()
-        {
-            return Token.Value;
         }
         public override object Accept(IVisitor visitor)
         {

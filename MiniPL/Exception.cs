@@ -7,8 +7,12 @@
             return $"{type}: {message} on line {pos.line} column {pos.column}";
         }
     }
+    public abstract class MiniPLException : Exception
+    {
+        public MiniPLException(string message) : base(message) { }
+    }
 
-    public class LexicalError : Exception
+    public class LexicalError : MiniPLException
     {
         private static string type = "LexicalError";
         public Position Pos { get; private set; }
@@ -19,7 +23,7 @@
         }
     }
 
-    public class SyntaxError : Exception
+    public class SyntaxError : MiniPLException
     {
         private static string type = "SyntaxError";
         public Position Pos { get; private set; }
@@ -28,7 +32,7 @@
             Pos = pos;
         }
     }
-    public class SemanticError : Exception
+    public class SemanticError : MiniPLException
     {
         private static string type = "SemanticError";
         public Position Pos { get; private set; }
@@ -37,7 +41,7 @@
             Pos = pos;
         }
     }
-    public class RuntimeError : Exception
+    public class RuntimeError : MiniPLException
     {
         private static string type = "RuntimeError";
         public Position Pos { get; private set; }

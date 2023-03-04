@@ -8,14 +8,14 @@ namespace MiniPL
 {
     interface IVisitor
     {
-        object? Visit(ProgNode node);
-        object? Visit(StmtsNode node);
-        object? Visit(DeclNode node);
-        object? Visit(AssignNode node);
-        object? Visit(ForNode node);
-        object? Visit(IfNode node);
-        object? Visit(PrintNode node);
-        object? Visit(ReadNode node);
+        void Visit(ProgNode node);
+        void Visit(StmtsNode node);
+        void Visit(DeclNode node);
+        void Visit(AssignNode node);
+        void Visit(ForNode node);
+        void Visit(IfNode node);
+        void Visit(PrintNode node);
+        void Visit(ReadNode node);
         object Visit(ExprNode node);
         object Visit(OpndNode node);
         object Visit(TokenNode node);
