@@ -18,6 +18,8 @@
         private bool insideForStmt = false;
         private bool insideIfStmt = false;
 
+        private bool debugMode = false;
+
         private readonly List<TokenType> opndTypes = new()
         {
             TokenType.INT_LITERAL, TokenType.STRING_LITERAL, TokenType.IDENTIFIER, TokenType.LPAREN
@@ -51,6 +53,8 @@
         };
         public Parser(string filename, bool debugMode)
         {
+            this.debugMode = debugMode;
+
             Ast = new();
             Scanner = new(filename, debugMode);
         }
@@ -58,6 +62,7 @@
         {
             Scanner.Tokenize();
             Ast.Root.AddStmts(AddStmtsNode());
+            if (debugMode) Ast.Root.Print();
         }
         private StmtsNode AddStmtsNode()
         {
@@ -71,6 +76,10 @@
                     if (insideIfStmt && Lookahead().Type == TokenType.ELSE)
                         return stmts;
                     stmts.AddChild(AddStmtNode());
+                    if (Lookahead().Type != TokenType.SEMICOLON)
+                    {
+                        throw new SyntaxError("Missing semicolon", currentToken.Pos);
+                    }
                     NextToken();
                 }
                 NextToken();
@@ -80,38 +89,27 @@
             while (!IsAtEnd())
             {
                 stmts.AddChild(AddStmtNode());
-                ExpectToken(TokenType.SEMICOLON);
+                if (Lookahead().Type != TokenType.SEMICOLON)
+                {
+                    throw new SyntaxError("Missing semicolon", currentToken.Pos);
+                }
+                NextToken();
             }
 
             return stmts;
         }
         private StmtNode AddStmtNode()
         {
-            StmtNode stmt;
-            switch (Lookahead().Type)
+            StmtNode stmt = Lookahead().Type switch
             {
-                case TokenType.VAR:
-                    stmt = AddDeclStmt();
-                    break;
-                case TokenType.IDENTIFIER:
-                    stmt = AddAssignStmt();
-                    break;
-                case TokenType.FOR:
-                    stmt = AddForStmt();
-                    break;
-                case TokenType.IF:
-                    stmt = AddIfStmt();
-                    break;
-                case TokenType.PRINT:
-                    stmt = AddPrintStmt();
-                    break;
-                case TokenType.READ:
-                    stmt = AddReadStmt();
-                    break;
-                default:
-                    throw new SyntaxError($"Illegal token {currentToken.Type}", currentToken.Pos);            
-            }
-
+                TokenType.VAR        => AddDeclStmt(),
+                TokenType.IDENTIFIER => AddAssignStmt(),
+                TokenType.FOR        => AddForStmt(),
+                TokenType.IF         => AddIfStmt(),
+                TokenType.PRINT      => AddPrintStmt(),
+                TokenType.READ       => AddReadStmt(),
+                _ => throw new SyntaxError($"Illegal token {currentToken.Type}", currentToken.Pos),
+            };
             return stmt;
         }
         private DeclNode AddDeclStmt()
@@ -251,23 +249,16 @@
         }
         private INode? GetNode(Token token)
         {
-            switch (token.Type)
+            return token.Type switch
             {
-                case TokenType.IDENTIFIER:
-                    return new IdentNode(token);
-                case var _ when typeNodes.Contains(token.Type):
-                    return new TypeNode(token);
-                case TokenType.INT_LITERAL:
-                    return new IntNode(token);
-                case TokenType.STRING_LITERAL:
-                    return new StrNode(token);
-                case var _ when opNodes.Contains(token.Type):
-                    return new OpNode(token);
-                case TokenType.NOT:
-                    return new UnOpNode(token);
-                default:
-                    return null;
-            }
+                TokenType.IDENTIFIER                      => new IdentNode(token),
+                var _ when typeNodes.Contains(token.Type) => new TypeNode(token),
+                TokenType.INT_LITERAL                     => new IntNode(token),
+                TokenType.STRING_LITERAL                  => new StrNode(token),
+                var _ when opNodes.Contains(token.Type)   => new OpNode(token),
+                TokenType.NOT                             => new UnOpNode(token),
+                _                                         => null,
+            };
         }
         private void NextToken()
         {

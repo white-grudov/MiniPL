@@ -50,12 +50,4 @@
     {
         public FileNotFoundError(string path) : base($"File {path} does not exist") { }
     }
-    public class ErrorList : Exception
-    {
-        public List<MiniPLException> Errors { get; private set; }
-        public ErrorList(List<MiniPLException> errors)
-        {
-            Errors = errors;
-        }
-    }
 }

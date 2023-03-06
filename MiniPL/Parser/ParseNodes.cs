@@ -76,20 +76,6 @@
             return null;
         }
     }
-    class ErrorNode : StmtNode
-    {
-        public ErrorNode() : base() {}
-
-        public override object? Accept(IVisitor visitor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override List<INode> GetAllChildren()
-        {
-            throw new NotImplementedException();
-        }
-    }
     class DeclNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }

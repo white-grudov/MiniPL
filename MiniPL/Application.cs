@@ -12,8 +12,8 @@
         public Application(string filename, bool debugMode = false)
         {
             this.debugMode = debugMode;
-
             this.filename = filename;
+
             parser = new Parser(filename, debugMode);
             analyzer = new SemanticAnalyzer(parser.Ast);
             interpreter = new Interpreter(parser.Ast);
@@ -21,22 +21,14 @@
         public void Run()
         {
             try
-            { 
+            {
                 parser.Parse();
-                if (debugMode) parser.Ast.Root.Print();
                 analyzer.Analyze();
                 interpreter.Interpret();
             }
             catch (MiniPLException e)
             {
                 PrintError(e);
-            }
-            catch (ErrorList e)
-            {
-                foreach (var error in e.Errors)
-                {
-                    PrintError(error);
-                }
             }
         }
         private void PrintError(MiniPLException e)

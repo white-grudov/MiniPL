@@ -163,7 +163,7 @@ namespace MiniPL
                 {
                     return value;
                 }
-                else throw new Exception("Trying to get value from non-initialized variable");
+                else throw new RuntimeError($"Usage of uninitialized variable {node.Token.Value}", node.Token.Pos);
             }
             else if (node.GetType() == typeof(StrNode))
             {
