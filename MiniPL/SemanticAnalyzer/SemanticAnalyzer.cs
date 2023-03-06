@@ -19,6 +19,9 @@
             { TFS(TokenType.AND), new List<string> { TFS(TokenType.BOOL) } }
         };
         private List<string> boolOperators = new() { TFS(TokenType.EQ), TFS(TokenType.LT), TFS(TokenType.GT) };
+
+        private List<MiniPLException> exceptions = new();
+
         public SemanticAnalyzer(AST ast)
         {
             Ast = ast;
@@ -27,6 +30,10 @@
         public void Analyze()
         {
             Ast.Root.Accept(this);
+            if (exceptions.Count > 0)
+            {
+                throw new ErrorList(exceptions);
+            }
         }
 
         public void Visit(ProgNode node)
@@ -148,7 +155,7 @@
                 string opType = (string)node.Op.Accept(this);
                 if (!allowedTypes[opType].Contains(leftOpndType))
                 {
-                    throw new SemanticError("Variable type dismatch", node.Op.Token.Pos);
+                    exceptions.Add(new SemanticError("Variable type dismatch", node.Op.Token.Pos));
                 }
 
                 node.Type = leftOpndType;
@@ -180,14 +187,15 @@
         {
             if (!Context.ContainsVariable(name))
             {
-                throw new SemanticError("Variable is not declared", pos);
+                exceptions.Add(new SemanticError("Variable is not declared", pos));
             }
         }
         private void MatchTypes(string exprType, string desiredType, Position pos)
         {
+            if (exprType == null || desiredType == null) return;
             if (exprType != desiredType)
             {
-                throw new SemanticError($"Variable type dismatch (expected {desiredType}, got {exprType})", pos);
+                exceptions.Add(new SemanticError($"Variable type dismatch (expected {desiredType}, got {exprType})", pos));
             }
         }
     }

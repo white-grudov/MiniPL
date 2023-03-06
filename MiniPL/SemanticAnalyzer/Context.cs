@@ -45,7 +45,9 @@
         }
         public string GetVariableType(string name)
         {
-            return Table[name].Type;
+            TableEntry entry;
+            Table.TryGetValue(name, out entry);
+            return entry.Type;
         }
         public object? GetVariableValue(string name)
         {

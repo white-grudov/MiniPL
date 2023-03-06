@@ -1,17 +1,11 @@
-﻿print "Sentence builder\n";
-print "Enter the number of words: ";
-var words : int;
-read words;
-var current : string;
-var sentence : string := "";
-var i : int;
-for i in 1..words do
-	print "Enter ";
-	print i;
-	print " word: ";
-	read current;
-	sentence := sentence + current;
-	sentence := sentence + " ";
+﻿var nTimes : int := 0;
+print "How many times?";
+read nTimes;
+var x : int;
+for x in 0..nTimes-1 do
+	print x;
+	print " : Hello, World!\n";
 end for;
-print "The sentence is: " + sentence;
-print "\n";
+if x = nTimes do
+	print "x is equal to ntimes";
+end if;
