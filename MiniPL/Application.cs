@@ -30,6 +30,13 @@
             {
                 PrintError(e);
             }
+            catch (ErrorList e)
+            {
+                foreach (var error in e.Errors)
+                {
+                    PrintError(error);
+                }
+            }
         }
         private void PrintError(MiniPLException e)
         {

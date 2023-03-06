@@ -26,6 +26,11 @@
             }
         }
     }
+    class ErrorNode : Node
+    {
+        public override object? Accept(IVisitor visitor) { return null; }
+        public override List<INode> GetAllChildren() { return new List<INode>(); }
+    }
     // root node
     class ProgNode : Node
     {
