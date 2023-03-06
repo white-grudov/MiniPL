@@ -5,7 +5,7 @@
         private readonly AST Ast;
         private readonly Context Context;
 
-        private Dictionary<string, List<string>> allowedTypes = new Dictionary<string, List<string>>
+        private readonly Dictionary<string, List<string>> allowedTypes = new()
         {
             { TFS(TokenType.PLUS), new List<string>() { TFS(TokenType.INT), TFS(TokenType.STRING) } },
             { TFS(TokenType.MINUS), new List<string>() { TFS(TokenType.INT) } },
@@ -18,7 +18,7 @@
             { TFS(TokenType.GT), new List<string> { TFS(TokenType.INT), TFS(TokenType.BOOL) } },
             { TFS(TokenType.AND), new List<string> { TFS(TokenType.BOOL) } }
         };
-        private List<string> boolOperators = new List<string> { TFS(TokenType.EQ), TFS(TokenType.LT), TFS(TokenType.GT) };
+        private List<string> boolOperators = new() { TFS(TokenType.EQ), TFS(TokenType.LT), TFS(TokenType.GT) };
         public SemanticAnalyzer(AST ast)
         {
             Ast = ast;
@@ -55,7 +55,7 @@
             if (node.Expr == null) return;
 
             string exprType = (string)node.Expr.Accept(this);
-            MatchTypes(exprType, type, node.Ident.Token.Pos);
+            MatchTypes(exprType, type, node.Expr.Pos);
         }
 
         public void Visit(AssignNode node)
@@ -166,7 +166,10 @@
         public object Visit(TokenNode node)
         {
             if (node.Token.Type == TokenType.IDENTIFIER)
+            {
+                CheckVariableDeclared(node.Token.Value, node.Token.Pos);
                 return Context.GetVariableType(node.Token.Value);
+            }
             return TFS(node.Token.Type);
         }
         private static string TFS(TokenType type)
@@ -177,14 +180,14 @@
         {
             if (!Context.ContainsVariable(name))
             {
-                throw new SemanticError("Variable is not declared.", pos);
+                throw new SemanticError("Variable is not declared", pos);
             }
         }
         private void MatchTypes(string exprType, string desiredType, Position pos)
         {
             if (exprType != desiredType)
             {
-                throw new SemanticError("Variable type dismatch", pos);
+                throw new SemanticError($"Variable type dismatch (expected {desiredType}, got {exprType})", pos);
             }
         }
     }

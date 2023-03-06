@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MiniPL
+﻿namespace MiniPL
 {
     // for further expansion with visitor pattern
     interface INode
@@ -17,7 +15,9 @@ namespace MiniPL
         {
             string result = $"{new string(' ', indent)}{GetType().Name}";
             if (this is TokenNode)
+            {
                 result += $" [{((TokenNode)this).Token.Value}]";
+            }
             Console.WriteLine(result);
 
             foreach (var node in GetAllChildren())
@@ -74,6 +74,20 @@ namespace MiniPL
         {
             visitor.Visit(this);
             return null;
+        }
+    }
+    class ErrorNode : StmtNode
+    {
+        public ErrorNode() : base() {}
+
+        public override object? Accept(IVisitor visitor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<INode> GetAllChildren()
+        {
+            throw new NotImplementedException();
         }
     }
     class DeclNode : StmtNode

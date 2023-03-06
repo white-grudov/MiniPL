@@ -10,22 +10,23 @@
  * 23.02, 2 hours, continued implementing semantic analyzer
  * 02.03, 7 hours, fixed token generation, finished semantic analyzer
  * 03.03, 3 hours, implemented interpreter
+ * 04.03, 2 hours, small fixes
+ * 05.03, 1 hour,  started redoing error handling
+ * 06.03, 1 hour,  ...
  */
 
 /* What to do:
- * - Console input/output
  * - More robust error handling
- * - Rearrangement of modules
  * - Testing
  */
 namespace MiniPL
 {
-    internal class MiniPL
+    internal class Program
     {
         static void Main(string[] args)
         {
             if (args.Length != 1) return;
-            Application app = new Application(args[0], true);
+            Application app = new(args[0], true);
             app.Run();
         }
     }

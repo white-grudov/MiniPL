@@ -158,16 +158,21 @@ namespace MiniPL
         {
             if (node.GetType() == typeof(IdentNode))
             {
-                return Context.GetVariableValue(node.Token.Value);
+                object? value = Context.GetVariableValue(node.Token.Value);
+                if (value != null)
+                {
+                    return value;
+                }
+                else throw new Exception("Trying to get value from non-initialized variable");
             }
             else if (node.GetType() == typeof(StrNode))
             {
                 string result = node.Token.Value;
-                return result.Substring(1, result.Length - 2);
+                return result[1..^1];
             }
             return node.Token.Value;
         }
-        private int ToInt(object number)
+        private static int ToInt(object number)
         {
             if (number.GetType() == typeof(int)) return (int)number;
             return int.Parse((string)number);

@@ -18,19 +18,19 @@
         private static Context? _instance;
         private Context()
         {
-            Table = new SymbolTable();
+            Table = new();
         }
         public static Context GetInstance()
         {
             if (_instance == null)
             {
-                _instance = new Context();
+                _instance = new();
             }
             return _instance;
         }
         public void Declare(string name, string type, object? value = null)
         {
-            Table[name] = new TableEntry(type);
+            Table[name] = new(type);
             if (value != null) Assign(name, value);
         }
         public void Assign(string name, object value)
@@ -42,10 +42,6 @@
         public bool ContainsVariable(string name)
         {
             return Table.ContainsKey(name);
-        }
-        public TableEntry GetVariable(string name)
-        {
-            return Table[name];
         }
         public string GetVariableType(string name)
         {

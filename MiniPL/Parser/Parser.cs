@@ -18,40 +18,50 @@
         private bool insideForStmt = false;
         private bool insideIfStmt = false;
 
-        private List<TokenType> opndTypes = new List<TokenType>()
+        private readonly List<TokenType> opndTypes = new()
         {
             TokenType.INT_LITERAL, TokenType.STRING_LITERAL, TokenType.IDENTIFIER, TokenType.LPAREN
         };
-        private List<TokenType> opTypes = new List<TokenType>()
+        private readonly List<TokenType> opTypes = new()
         {
             TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
             TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND
         };
-        private List<object> expectedDeclTokens = new List<object>()
+        private readonly List<object> expectedDeclTokens = new()
         {
             TokenType.VAR, TokenType.IDENTIFIER, TokenType.COLON,
             new List<TokenType> { TokenType.INT, TokenType.STRING, TokenType.BOOL }
         };
-        private List<TokenType> expectedAssignTokens = new List<TokenType>()
+        private readonly List<TokenType> expectedAssignTokens = new()
         {
             TokenType.IDENTIFIER, TokenType.ASSIGN
         };
-        private List<TokenType> expectedForTokens = new List<TokenType>()
+        private readonly List<TokenType> expectedForTokens = new()
         {
             TokenType.FOR, TokenType.IDENTIFIER, TokenType.IN
         };
+        private readonly List<TokenType> opNodes = new()
+        {
+            TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
+            TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND
+        };
+        private readonly List<TokenType> typeNodes = new()
+        {
+            TokenType.INT, TokenType.STRING, TokenType.BOOL
+        };
         public Parser(string filename, bool debugMode)
         {
-            Ast = new AST();
-            Scanner = new Scanner(filename, debugMode);
+            Ast = new();
+            Scanner = new(filename, debugMode);
         }
         public void Parse()
         {
+            Scanner.Tokenize();
             Ast.Root.AddStmts(AddStmtsNode());
         }
         private StmtsNode AddStmtsNode()
         {
-            StmtsNode stmts = new StmtsNode();
+            StmtsNode stmts = new();
 
             // inside if or for statement
             if (insideForStmt || insideIfStmt)
@@ -70,7 +80,7 @@
             while (!IsAtEnd())
             {
                 stmts.AddChild(AddStmtNode());
-                NextToken();
+                ExpectToken(TokenType.SEMICOLON);
             }
 
             return stmts;
@@ -106,14 +116,14 @@
         }
         private DeclNode AddDeclStmt()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             foreach (var type in expectedDeclTokens)
             {
                 INode? node = GetChild(type);
                 if (node != null) childNodes.Add(node);
             }
 
-            DeclNode declNode = new DeclNode((IdentNode)childNodes[0], (TypeNode)childNodes[1]);
+            DeclNode declNode = new((IdentNode)childNodes[0], (TypeNode)childNodes[1]);
 
             if (Lookahead().Type != TokenType.SEMICOLON)
             {
@@ -125,18 +135,17 @@
         }
         private AssignNode AddAssignStmt()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             foreach (var type in expectedAssignTokens)
             {
                 INode? node = GetChild(type);
                 if (node != null) childNodes.Add(node);
             }
-
             return new AssignNode((IdentNode)childNodes[0], AddExpr());
         }
         private ForNode AddForStmt()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             foreach (var type in expectedForTokens)
             {
                 INode? node = GetChild(type);
@@ -148,22 +157,21 @@
             ExpectToken(TokenType.DO);
 
             insideForStmt = true;
-            ForNode forNode = new ForNode(
-                (IdentNode)childNodes[0], (ExprNode)childNodes[1], (ExprNode)childNodes[2], AddStmtsNode());
+            ForNode forNode = new((IdentNode)childNodes[0], (ExprNode)childNodes[1], (ExprNode)childNodes[2], AddStmtsNode());
             insideForStmt = false;
 
             return forNode;
         }
         private IfNode AddIfStmt()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             ExpectToken(TokenType.IF);
             childNodes.Add(AddExpr());
 
             ExpectToken(TokenType.DO);
 
             insideIfStmt = true;
-            IfNode ifNode = new IfNode((ExprNode)childNodes[0], AddStmtsNode());
+            IfNode ifNode = new((ExprNode)childNodes[0], AddStmtsNode());
 
             if (Lookahead().Type != TokenType.SEMICOLON)
             {
@@ -181,7 +189,7 @@
         }
         private ReadNode AddReadStmt()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             ExpectToken(TokenType.READ);
             INode? node = GetChild(TokenType.IDENTIFIER);
             if (node != null) childNodes.Add(node);
@@ -190,7 +198,7 @@
         }
         private ExprNode AddExpr()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             bool unOp = false;
 
             if (Lookahead().Type == TokenType.NOT)
@@ -201,7 +209,7 @@
             ExpectToken(opndTypes);
             childNodes.Add(AddOpndNode());
 
-            ExprNode exprNode = new ExprNode((OpndNode)childNodes[childNodes.Count - 1], currentToken.Pos);
+            ExprNode exprNode = new((OpndNode)childNodes[childNodes.Count - 1], currentToken.Pos);
             if (unOp)
             {
                 exprNode.AddUnOp((UnOpNode)childNodes[0]);
@@ -221,7 +229,7 @@
         }
         private OpndNode AddOpndNode()
         {
-            List<INode> childNodes = new List<INode>();
+            List<INode> childNodes = new();
             if (currentToken.Type == TokenType.LPAREN)
             {
                 childNodes.Add(AddExpr());
@@ -243,13 +251,6 @@
         }
         private INode? GetNode(Token token)
         {
-            List<TokenType> opNodes = new List<TokenType>() {
-                TokenType.PLUS, TokenType.MINUS, TokenType.DIV, TokenType.MUL,
-                TokenType.EQ, TokenType.LT, TokenType.GT, TokenType.AND
-            };
-            List<TokenType> typeNodes = new List<TokenType>() {
-                TokenType.INT, TokenType.STRING, TokenType.BOOL
-            };
             switch (token.Type)
             {
                 case TokenType.IDENTIFIER:
@@ -279,15 +280,14 @@
             {
                 if (Lookahead().Type != (TokenType)type)
                 {
-                    throw new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})",
-                        currentToken.Pos);
+                    throw new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})", Lookahead().Pos);
                 }
             }
             else if (type.GetType() == typeof(List<TokenType>))
             {
                 if (!((List<TokenType>)type).Contains(Lookahead().Type))
                 {
-                    throw new SyntaxError($"Unexpected token {Lookahead().Type}", currentToken.Pos);
+                    throw new SyntaxError($"Unexpected token {Lookahead().Type}", Lookahead().Pos);
                 }
             }
             else

@@ -6,6 +6,7 @@ namespace MiniPL
     {
         string filename;
         public string? file;
+        bool fileIsRead = false;
 
         char currentChar = '\0';
         bool isIllegalToken = false;
@@ -57,22 +58,13 @@ namespace MiniPL
 
         public Scanner(string filename, bool debugMode)
         {
-            // scanning the file
             this.filename = filename;
-            file = ReadFile();
-            // getting the char queue
-            if (file == null)
-            {
-                throw new LexicalError("Source file is empty", currentPos);
-            }
-            symbols = new Queue<char>(file);
             this.debugMode = debugMode;
-
-            Tokenize();
         }
 
         public void Tokenize()
         {
+            if (!fileIsRead) ReadFile();
             if (symbols.Count > 0 && !isIllegalToken)
             {
                 Advance();
@@ -323,10 +315,24 @@ namespace MiniPL
                 Console.WriteLine("{0, -15} {1, -30} {2, 0}", NextToken.Type, NextToken.Value, NextToken.Pos);
         }
 
-        private string ReadFile()
+        private void ReadFile()
         {
-            string[] lines = File.ReadAllLines(filename);
-            return string.Join("\n", lines);
+            string[] lines;
+            try
+            {
+                lines = File.ReadAllLines(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                throw new FileNotFoundError(filename);
+            }
+            file = string.Join("\n", lines);
+            if (file == "")
+            {
+                throw new LexicalError("Source file is empty", currentPos);
+            }
+            symbols = new Queue<char>(file);
+            fileIsRead = true;
         }
     }
 }

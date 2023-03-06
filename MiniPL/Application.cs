@@ -29,7 +29,39 @@
             }
             catch (MiniPLException e)
             {
-                Console.WriteLine(e.Message);
+                PrintError(e);
+            }
+            catch (ErrorList e)
+            {
+                foreach (var error in e.Errors)
+                {
+                    PrintError(error);
+                }
+            }
+        }
+        private void PrintError(MiniPLException e)
+        {
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.Write(e.Message);
+            Console.ResetColor();
+            if (e is FileNotFoundError) return;
+
+            if (parser.Scanner.file != null)
+            {
+                Console.WriteLine();
+                string line = parser.Scanner.file.Split('\n')[e.Pos.line - 1];
+                int indent = 0;
+                foreach (var ch in line)
+                {
+                    if (ch == '\t' || ch == ' ')
+                    {
+                        indent++;
+                        line = line[1..];
+                    }
+                    else break;
+                }
+                Console.WriteLine(line);
+                Console.WriteLine($"{new string(' ', e.Pos.column - indent - 1)}^");
             }
         }
     }
