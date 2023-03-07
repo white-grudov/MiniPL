@@ -51,7 +51,9 @@
         }
         public object? GetVariableValue(string name)
         {
-            return Table[name].Value;
+            TableEntry entry;
+            Table.TryGetValue(name, out entry);
+            return entry.Value;
         }
     }
 }

@@ -8,7 +8,7 @@
         EQ, LT, GT, AND, NOT,
 
         // multi-char tokens
-        ASSIGN, DOUBLEDOT,
+        ASSIGN, RANGE,
 
         // literals
         IDENTIFIER, INT_LITERAL, STRING_LITERAL,

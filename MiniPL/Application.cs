@@ -7,11 +7,8 @@
         private readonly SemanticAnalyzer analyzer;
         private readonly Interpreter interpreter;
 
-        private bool debugMode = false;
-
         public Application(string filename, bool debugMode = false)
         {
-            this.debugMode = debugMode;
             this.filename = filename;
 
             parser = new Parser(filename, debugMode);
@@ -45,10 +42,10 @@
             Console.ResetColor();
             if (e is FileNotFoundError) return;
 
-            if (parser.Scanner.file != null)
+            if (parser.Scanner.File != null)
             {
                 Console.WriteLine();
-                string line = parser.Scanner.file.Split('\n')[e.Pos.line - 1];
+                string line = parser.Scanner.File.Split('\n')[e.Pos.line - 1];
                 int indent = 0;
                 foreach (var ch in line)
                 {

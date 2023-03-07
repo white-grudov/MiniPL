@@ -2,24 +2,32 @@
 
 namespace MiniPL
 {
+    /* Scanner is the part of the MiniPL Interpreter which is responsible for reading the source file
+     * and generating a character stream out of it. When the Tokenize() method is called, the scanner
+     * processes the character and generates a token, which is then passed to the parser. When the
+     * character stream is empty, the scanner generates EOF token.
+     */
     internal class Scanner
     {
-        string filename;
-        public string? file;
-        bool fileIsRead = false;
+        public string? File { get; private set; } // the source code
+        private readonly string filename;
+        private bool fileIsRead = false; // checks if the source code has already been loaded
 
-        char currentChar = '\0';
-        bool isIllegalToken = false;
-        bool debugMode;
+        private char currentChar = '\0';
+        private readonly bool debugMode; // if true, prints tokens to the console
 
-        Position currentPos = new Position(1, 0);
-        Queue<char> symbols = new Queue<char>();
+        private Position currentPos = new(1, 0); // for error messages
+        private Queue<char> symbols = new(); // characters which compose the source code
         public Token CurrentToken { get; private set; }
         public Token NextToken { get; private set; }
 
-        StringBuilder buffer = new StringBuilder();
+        private readonly StringBuilder buffer = new(); // buffer for composing the multi-char tokens
 
-        Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+        /* Below are dictionaries and list which help to detect keywords, single-char tokens,
+         * characters to skip (blank spaces), escape characters inside of string literals,
+         * and allowed characters after identifier and number literal tokens
+         */
+        private readonly Dictionary<string, TokenType> keywords = new()
         {
             { "for",    TokenType.FOR    },
             { "in",     TokenType.IN     },
@@ -35,7 +43,7 @@ namespace MiniPL
             { "bool",   TokenType.BOOL   },
             { "assert", TokenType.ASSERT }
         };
-        Dictionary<char, TokenType> singleChar = new Dictionary<char, TokenType>()
+        private readonly Dictionary<char, TokenType> singleChar = new()
         {
             { '+', TokenType.PLUS      },
             { '-', TokenType.MINUS     },
@@ -49,87 +57,108 @@ namespace MiniPL
             { '(', TokenType.LPAREN    },
             { ')', TokenType.RPAREN    }
         };
-        List<char> blankSpaces = new List<char>() { ' ', '\t' };
-        Dictionary<char, char> escapeChars = new Dictionary<char, char> {
+        private readonly List<char> blankSpaces = new()
+        {
+            ' ', '\t' 
+        };
+        private readonly Dictionary<char, char> escapeChars = new()
+        {
             {'n', '\n'}, {'t', '\t'}, {'\'', '\''}, {'\"', '\"'},
             {'r', '\r'}, {'f', '\f'}, {'v', '\v'}
         };
-        List<char> allowedChars = new List<char>() { ')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t' };
-
+        private readonly List<char> allowedChars = new() 
+        {
+            ')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t'
+        };
+        
         public Scanner(string filename, bool debugMode)
         {
             this.filename = filename;
             this.debugMode = debugMode;
         }
 
+        /* The only public method of the class, which, when called, generates one token and stores it in 
+         * NextToken variable, while the previous token is assigned to CurrentToken. The method advances
+         * to the next character and then checks it with token patterns. If character is invalid, the
+         * exception is thrown.
+         */
         public void Tokenize()
         {
+            // The reading file functionality is in this method due to error handling realization
             if (!fileIsRead) ReadFile();
-            if (symbols.Count > 0 && !isIllegalToken)
+            if (symbols.Count > 0)
             {
-                Advance();
+                NextChar();
                 switch (currentChar)
                 {
-                    // blank spaces
+                    // Blank spaces: [ \t]+
                     case var _ when blankSpaces.Contains(currentChar):
                         Tokenize();
                         return;
 
-                    // single character tokens
+                    // Single-char tokens: [+\-*<>!&=;()]
                     case var _ when singleChar.ContainsKey(currentChar):
                         AddToken(singleChar[currentChar], currentChar.ToString());
                         break;
 
-                    // other symbols
+                    // Single-char tokens or multi-char ones, which can start with single-char ones
+
+                    // Assign/Colon: :=|:
                     case ':':
                         AddAssign();
                         break;
+                    // Doubledot: ..
                     case '.':
                         AddDoubledot();
                         break;
+                    // Division/Single-line/Multi-line comments: \/ | \/\/.*$ | \/\*.*?\*\/
                     case '/':
                         AddComment();
                         break;
 
-                    // number literal
+                    // Number literal: [0-9]+
                     case var _ when char.IsDigit(currentChar):
                         AddNumberLiteral();
                         break;
-                    // keywords and identifiers
+                    // Keywords/Identifiers: [a-zA-Z_][a-zA-Z0-9_]*
                     case var _ when char.IsLetter(currentChar) || currentChar == '_':
                         AddIdentifierOrKeyword();
                         break;
-                    // string literal
+                    // String literal: "[^"\\\n]*({0,1}:\\.[^"\\\n]*)*"
                     case var _ when currentChar == '\"':
                         AddStringLiteral();
                         break;
 
+                    // Character which is not start of any token
                     default:
                         IllegalToken(currentChar.ToString(), "Invalid char error");
                         break;
                 }
             }
+            // If EOF
             else AddToken(TokenType.EOF, "");
         }
-        // adds string literal token with escape symbols
+        // Adds string literal token with escape symbols
         private void AddStringLiteral()
         {
             buffer.Append(currentChar);
             bool isEscapeChar = false;
+            // Takes the chars until the next one is not "
             while (Lookahead() != '\"' && !isEscapeChar || isEscapeChar)
             {
+                // Checks if the string is unterminated
                 if (Lookahead() == '\n')
                 {
                     IllegalToken(buffer.ToString(), "Unterminated string");
                     return;
                 }
-                Advance();
-                // escape char
+                NextChar();
+                // Escape character
                 if (currentChar == '\\')
                 {
                     isEscapeChar = true;
                 }
-                // add special symbol to string literal
+                // Add special symbol to string literal
                 else if (isEscapeChar)
                 {
                     if (escapeChars.ContainsKey(currentChar))
@@ -137,32 +166,33 @@ namespace MiniPL
                         buffer.Append(escapeChars[currentChar]);
                         isEscapeChar = false;
                     }
+                    // Invalid escape character
                     else
                     {
-                        IllegalToken(buffer.ToString(), "Illegal char sequence");
+                        IllegalToken(buffer.ToString(), "Unrecognized escape sequence");
                         return;
                     }
                 }
                 else buffer.Append(currentChar);
             }
-            Advance();
+            NextChar();
             buffer.Append(currentChar);
             AddToken(TokenType.STRING_LITERAL, buffer.ToString());
 
             buffer.Clear();
         }
-        // adds identifier and determines whether it is a keyword
+        // Adds identifier and determines whether it is a keyword
         private void AddIdentifierOrKeyword()
         {
             buffer.Append(currentChar);
             while (char.IsLetterOrDigit(Lookahead()) || Lookahead() == '_')
             {
-                Advance();
+                NextChar();
                 buffer.Append(currentChar);
             }
             if (!allowedChars.Contains(Lookahead()))
             {
-                Advance();
+                NextChar();
                 buffer.Append(currentChar);
 
                 IllegalToken(buffer.ToString(), "Illegal char sequence");
@@ -170,6 +200,7 @@ namespace MiniPL
             }
 
             string result = buffer.ToString();
+            // Check if the resulting identifier is in keyword dict
             if (keywords.ContainsKey(result))
             {
                 AddToken(keywords[result], result);
@@ -178,18 +209,18 @@ namespace MiniPL
 
             buffer.Clear();
         }
-        // adds number literal token
+        // Adds number literal token
         private void AddNumberLiteral()
         {
             buffer.Append(currentChar);
             while (char.IsDigit(Lookahead()))
             {
-                Advance();
+                NextChar();
                 buffer.Append(currentChar);
             }
             if (!allowedChars.Contains(Lookahead()))
             {
-                Advance();
+                NextChar();
                 buffer.Append(currentChar);
 
                 IllegalToken(buffer.ToString(), "Illegal char sequence");
@@ -198,30 +229,30 @@ namespace MiniPL
             AddToken(TokenType.INT_LITERAL, buffer.ToString());
             buffer.Clear();
         }
-        // checks next char to determine whether it is a comment or div operator
+        // Checks next char to determine whether it is a comment or div operator
         private void AddComment()
         {
             buffer.Append(currentChar);
-            // single-line comment
+            // Single-line comment
             if (Lookahead() == '/')
             {
-                while (!IsAtEnd() && Lookahead() != '\n') Advance();
+                while (!IsAtEnd() && Lookahead() != '\n') NextChar();
                 Tokenize();
             }
-            // multi-line comment
+            // Multi-line comment
             else if (Lookahead() == '*')
             {
                 bool commentClosed = false;
-                Advance();
+                NextChar();
                 while (!IsAtEnd())
                 {
                     if (currentChar == '*' && Lookahead() == '/')
                     {
-                        Advance();
+                        NextChar();
                         commentClosed = true;
                         break;
                     }
-                    Advance();
+                    NextChar();
                 }
                 if (!commentClosed)
                 {
@@ -230,64 +261,59 @@ namespace MiniPL
                 }
                 Tokenize();
             }
-            // divider
+            // Divider
             else
             {
                 AddToken(TokenType.DIV, buffer.ToString());
             }
             buffer.Clear();
         }
-        // checks next char to determine whether it is assign operator, colon or invalid token
+        // Checks next char to determine whether it is assign operator or colon
         private void AddAssign()
         {
             buffer.Append(currentChar);
-            Advance();
-            if (currentChar == '=')
+            if (Lookahead() == '=')
             {
+                NextChar();
                 buffer.Append(currentChar);
                 AddToken(TokenType.ASSIGN, buffer.ToString());
             }
-            else if (currentChar == ' ')
+            else
             {
                 AddToken(TokenType.COLON, buffer.ToString());
             }
-            else
-            {
-                buffer.Append(currentChar);
-                IllegalToken(buffer.ToString(), "Expected char error");
-                return;
-            }
             buffer.Clear();
         }
-        // checks next token to determine whether it is double dot (for loop) or invalid token
+        // Checks next token to determine whether it is double dot (range operator) or invalid token
         private void AddDoubledot()
         {
             buffer.Append(currentChar);
-            Advance();
+            NextChar();
             if (currentChar == '.')
             {
                 buffer.Append(currentChar);
-                AddToken(TokenType.DOUBLEDOT, buffer.ToString());
+                AddToken(TokenType.RANGE, buffer.ToString());
             }
             else
             {
                 buffer.Append(currentChar);
-                IllegalToken(buffer.ToString(), "Expected char error");
+                IllegalToken(buffer.ToString(), "Expected \"..\", got \".\" instead");
                 return;
             }
             buffer.Clear();
         }
-
+        /* Generates an illegal token and throws an error. Scanner uses panic mode recovery, so when it
+         * generates an error, the program immediately stops execution.
+         */
         private void IllegalToken(string token, string error)
         {
             AddToken(TokenType.ILLEGAL, token);
-            isIllegalToken = true;
             buffer.Clear();
 
             throw new LexicalError(error, currentPos);
         }
-
-        private void Advance()
+        // Next char is dequeued and the current position is updated
+        private void NextChar()
         {
             currentChar = symbols.Dequeue();
             currentPos.column++;
@@ -298,15 +324,17 @@ namespace MiniPL
                 currentChar = symbols.Dequeue();
             }
         }
+        // Checks if there are more characters left
         private bool IsAtEnd()
         {
             return symbols.Count == 0;
         }
+        // Return the next character, but does not dequeue it
         private char Lookahead()
         {
             return symbols.Count != 0 ? symbols.Peek() : '\0';
         }
-
+        // New token is created
         private void AddToken(TokenType type, string value)
         {
             CurrentToken = NextToken;
@@ -314,24 +342,24 @@ namespace MiniPL
             if (debugMode)
                 Console.WriteLine("{0, -15} {1, -30} {2, 0}", NextToken.Type, NextToken.Value, NextToken.Pos);
         }
-
+        // Read the source code and loads it to the scanner. If file does not exists or empty throws an error
         private void ReadFile()
         {
             string[] lines;
             try
             {
-                lines = File.ReadAllLines(filename);
+                lines = System.IO.File.ReadAllLines(filename);
             }
             catch (FileNotFoundException)
             {
                 throw new FileNotFoundError(filename);
             }
-            file = string.Join("\n", lines);
-            if (file == "")
+            File = string.Join("\n", lines);
+            if (File == "")
             {
                 throw new LexicalError("Source file is empty", currentPos);
             }
-            symbols = new Queue<char>(file);
+            symbols = new Queue<char>(File);
             fileIsRead = true;
         }
     }

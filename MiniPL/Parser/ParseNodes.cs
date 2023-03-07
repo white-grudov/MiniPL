@@ -68,7 +68,7 @@
         }
         public override List<INode> GetAllChildren()
         {
-            List<INode> children = new List<INode>();
+            List<INode> children = new();
             foreach (var child in StmtNodes)
             {
                 children.Add(child);
@@ -98,7 +98,7 @@
         }
         public override List<INode> GetAllChildren()
         {
-            List<INode> children = new List<INode>() { Ident, Type };
+            List<INode> children = new() { Ident, Type };
             if (Expr != null) children.Add(Expr);
             return children;
         }
@@ -167,7 +167,7 @@
         }
         public override List<INode> GetAllChildren()
         {
-            List<INode> children = new List<INode>() { Expr, IfStmts };
+            List<INode> children = new() { Expr, IfStmts };
             if (ElseStmts != null) children.Add(ElseStmts);
             return children;
         }

@@ -12,11 +12,11 @@
  * 03.03, 3 hours, implemented interpreter
  * 04.03, 2 hours, small fixes
  * 05.03, 1 hour,  started redoing error handling
- * 06.03, 1 hour,  ...
+ * 06.03, 4 hours, implemented statement recovery error handling in parser and semantic analyzer
+ * 07.03, 3 hours, started implementing tests, added comments and refactored scanner
  */
 
 /* What to do:
- * - More robust error handling
  * - Testing
  * - Comments
  */
@@ -26,8 +26,13 @@ namespace MiniPL
     {
         static void Main(string[] args)
         {
-            if (args.Length != 1) return;
-            Application app = new(args[0], true);
+            bool debugMode = false;
+            if (args.Length < 2) return;
+            else if (args.Length < 3)
+            {
+                if (args[1] == "-debug") debugMode = true;
+            }
+            Application app = new(args[0], debugMode);
             app.Run();
         }
     }

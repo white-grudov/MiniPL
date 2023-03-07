@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.Design;
-
-namespace MiniPL
+﻿namespace MiniPL
 {
     class AST
     {
@@ -138,19 +136,14 @@ namespace MiniPL
             List<INode> childNodes = new();
             foreach (var type in expectedDeclTokens)
             {
-                INode? node = GetChild(type);
-                if (node != null)
-                {
-                    if (node.GetType() == typeof(ErrorNode)) return null;
-                    childNodes.Add(node);
-                }
+                if (!ProcessChild(type, ref childNodes)) return null;
             }
 
             DeclNode declNode = new((IdentNode)childNodes[0], (TypeNode)childNodes[1]);
 
             if (Lookahead().Type == TokenType.ASSIGN)
             {
-                ExpectToken(TokenType.ASSIGN);
+                if (!ExpectToken(TokenType.ASSIGN)) return null;
                 ExprNode? expr = AddExpr();
                 if (expr == null) return null;
                 declNode.AddExpr(expr);
@@ -163,12 +156,7 @@ namespace MiniPL
             List<INode> childNodes = new();
             foreach (var type in expectedAssignTokens)
             {
-                INode? node = GetChild(type);
-                if (node != null)
-                {
-                    if (node.GetType() == typeof(ErrorNode)) return null;
-                    childNodes.Add(node);
-                }
+                if (!ProcessChild(type, ref childNodes)) return null;
             }
             ExprNode? expr = AddExpr();
             if (expr == null) return null;
@@ -190,7 +178,7 @@ namespace MiniPL
             if (start == null) return null;
             childNodes.Add(start);
 
-            if (!ExpectToken(TokenType.DOUBLEDOT)) return null;
+            if (!ExpectToken(TokenType.RANGE)) return null;
 
             ExprNode? end = AddExpr();
             if (end == null) return null;
@@ -219,7 +207,7 @@ namespace MiniPL
 
             if (Lookahead().Type != TokenType.SEMICOLON)
             {
-                ExpectToken(TokenType.ELSE);
+                if (!ExpectToken(TokenType.ELSE)) return null;
                 ifNode.AddElseStmts(AddStmtsNode());
             }
             insideIfStmt = false;
@@ -253,12 +241,7 @@ namespace MiniPL
 
             if (Lookahead().Type == TokenType.NOT)
             {
-                INode? node = GetChild(TokenType.NOT);
-                if (node != null)
-                {
-                    if (node.GetType() == typeof(ErrorNode)) return null;
-                    childNodes.Add(node);
-                }
+                if (!ProcessChild(TokenType.NOT, ref childNodes)) return null;
             }
             if (!ExpectToken(opndTypes)) return null;
 
@@ -274,12 +257,7 @@ namespace MiniPL
             else if (opTypes.Contains(Lookahead().Type))
             {
                 childNodes.Clear();
-                INode? node = GetChild(opTypes);
-                if (node != null)
-                {
-                    if (node.GetType() == typeof(ErrorNode)) return null;
-                    childNodes.Add(node);
-                }
+                if (!ProcessChild(opTypes, ref childNodes)) return null;
 
                 if (!ExpectToken(opndTypes)) return null;
 
@@ -299,7 +277,7 @@ namespace MiniPL
                 ExprNode? expr = AddExpr();
                 if (expr == null) return null;
                 childNodes.Add(expr);
-                ExpectToken(TokenType.RPAREN);
+                if (!ExpectToken(TokenType.RPAREN)) return null;
             }
             else
             {
@@ -310,9 +288,27 @@ namespace MiniPL
 
             return opndNode;
         }
+        private bool ProcessChild(object type, ref List<INode> childNodes)
+        {
+            INode? node = GetChild(type);
+            if (node != null)
+            {
+                if (node.GetType() == typeof(ErrorNode)) return false;
+                childNodes.Add(node);
+            }
+            return true;
+        }
         private INode? GetChild(object type)
         {
-            if (!ExpectToken(type)) return new ErrorNode();
+            if (type.GetType() == typeof(TokenType))
+            {
+                if (!ExpectToken((TokenType)type)) return new ErrorNode();
+            }
+            else if (type.GetType() == typeof(List<TokenType>))
+            {
+                if (!ExpectToken((List<TokenType>)type)) return new ErrorNode();
+            }
+            else return null;
             return GetNode(currentToken);
         }
         private INode? GetNode(Token token)
@@ -348,27 +344,22 @@ namespace MiniPL
             }
             while (currentToken.Type != TokenType.SEMICOLON);
         }
-        private bool ExpectToken(object type)
+        private bool ExpectToken(TokenType type)
         {
-            if (type.GetType() == typeof(TokenType))
+            if (Lookahead().Type != type)
             {
-                if (Lookahead().Type != (TokenType)type)
-                {
-                    ErrorToken(new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})", Lookahead().Pos));
-                    return false;
-                }
+                ErrorToken(new SyntaxError($"Unexpected token {Lookahead().Type} (expected {type})", Lookahead().Pos));
+                return false;
             }
-            else if (type.GetType() == typeof(List<TokenType>))
+            NextToken();
+            return true;
+        }
+        private bool ExpectToken(List<TokenType> types)
+        {
+            if (!types.Contains(Lookahead().Type))
             {
-                if (!((List<TokenType>)type).Contains(Lookahead().Type))
-                {
-                    ErrorToken(new SyntaxError($"Unexpected token {Lookahead().Type}", Lookahead().Pos));
-                    return false;
-                }
-            }
-            else
-            {
-                throw new InvalidCastException("Unallowed token type");
+                ErrorToken(new SyntaxError($"Unexpected token {Lookahead().Type}", Lookahead().Pos));
+                return false;
             }
             NextToken();
             return true;

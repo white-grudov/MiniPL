@@ -1,4 +1,4 @@
-﻿var nTimes : int := 0;
+﻿var nTimes$ : int := 0;
 print "How many times?";
 read nTimes;
 var x : int;
