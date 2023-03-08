@@ -1,18 +1,10 @@
 ﻿namespace MiniPL
 {
-    public class ExMessage
-    {
-        public static string Form(string type, string message, Position pos)
-        {
-            return $"{type}: {message} on line {pos.line} column {pos.column}";
-        }
-    }
     public abstract class MiniPLException : Exception
     {
         public Position Pos { get; protected set; }
         public MiniPLException(string message) : base(message) { }
     }
-
     public class LexicalError : MiniPLException
     {
         private static string type = "LexicalError";
@@ -21,7 +13,6 @@
             Pos = pos;
         }
     }
-
     public class SyntaxError : MiniPLException
     {
         private static string type = "SyntaxError";

@@ -7,7 +7,7 @@ namespace MiniPL
      * processes the character and generates a token, which is then passed to the parser. When the
      * character stream is empty, the scanner generates EOF token.
      */
-    internal class Scanner
+    public class Scanner
     {
         public string? File { get; private set; } // the source code
         private readonly string filename;
@@ -59,16 +59,16 @@ namespace MiniPL
         };
         private readonly List<char> blankSpaces = new()
         {
-            ' ', '\t' 
+            ' ', '\t', '\n'
         };
         private readonly Dictionary<char, char> escapeChars = new()
         {
             {'n', '\n'}, {'t', '\t'}, {'\'', '\''}, {'\"', '\"'},
-            {'r', '\r'}, {'f', '\f'}, {'v', '\v'}
+            {'r', '\r'}, {'f', '\f'}, {'v', '\v'}, {'\\', '\\'}
         };
         private readonly List<char> allowedChars = new() 
         {
-            ')', ';', ' ', '.', '+', '-', '/', '*', '\n', '\t'
+            ')', ';', ' ', '.', '+', '-', '/', '*', '&', '\n', '\t'
         };
         
         public Scanner(string filename, bool debugMode)
@@ -77,7 +77,7 @@ namespace MiniPL
             this.debugMode = debugMode;
         }
 
-        /* The only public method of the class, which, when called, generates one token and stores it in 
+        /* The most important method of the class, which, when called, generates one token and stores it in 
          * NextToken variable, while the previous token is assigned to CurrentToken. The method advances
          * to the next character and then checks it with token patterns. If character is invalid, the
          * exception is thrown.
@@ -91,7 +91,7 @@ namespace MiniPL
                 NextChar();
                 switch (currentChar)
                 {
-                    // Blank spaces: [ \t]+
+                    // Blank spaces: [ \t\n]+
                     case var _ when blankSpaces.Contains(currentChar):
                         Tokenize();
                         return;
@@ -131,12 +131,23 @@ namespace MiniPL
 
                     // Character which is not start of any token
                     default:
-                        IllegalToken(currentChar.ToString(), "Invalid char error");
+                        IllegalToken(currentChar.ToString(), ErrorMessage.LE_INVALID_CHAR);
                         break;
                 }
             }
             // If EOF
             else AddToken(TokenType.EOF, "");
+        }
+        // Method was written solely for test purposes
+        public List<Token> GenerateTokens()
+        {
+            var tokens = new List<Token>();
+            while (NextToken.Type != TokenType.EOF)
+            {
+                Tokenize();
+                tokens.Add(NextToken);
+            }
+            return tokens;
         }
         // Adds string literal token with escape symbols
         private void AddStringLiteral()
@@ -149,17 +160,13 @@ namespace MiniPL
                 // Checks if the string is unterminated
                 if (Lookahead() == '\n')
                 {
-                    IllegalToken(buffer.ToString(), "Unterminated string");
+                    IllegalToken(buffer.ToString(), ErrorMessage.LE_UNTERMINATED_STR);
                     return;
                 }
                 NextChar();
-                // Escape character
-                if (currentChar == '\\')
-                {
-                    isEscapeChar = true;
-                }
+
                 // Add special symbol to string literal
-                else if (isEscapeChar)
+                if (isEscapeChar)
                 {
                     if (escapeChars.ContainsKey(currentChar))
                     {
@@ -169,11 +176,19 @@ namespace MiniPL
                     // Invalid escape character
                     else
                     {
-                        IllegalToken(buffer.ToString(), "Unrecognized escape sequence");
+                        IllegalToken(buffer.ToString(), ErrorMessage.LE_UNRECOGNIZED_ESCAPE);
                         return;
                     }
                 }
-                else buffer.Append(currentChar);
+                else
+                {
+                    // Escape character
+                    if (currentChar == '\\')
+                    {
+                        isEscapeChar = true;
+                    }
+                    else buffer.Append(currentChar);
+                }
             }
             NextChar();
             buffer.Append(currentChar);
@@ -190,12 +205,12 @@ namespace MiniPL
                 NextChar();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(Lookahead()))
+            if (!allowedChars.Contains(Lookahead()) && !IsAtEnd())
             {
                 NextChar();
                 buffer.Append(currentChar);
 
-                IllegalToken(buffer.ToString(), "Illegal char sequence");
+                IllegalToken(buffer.ToString(), ErrorMessage.LE_ILLEGAL_CHAR_SEQ);
                 return;
             }
 
@@ -218,12 +233,12 @@ namespace MiniPL
                 NextChar();
                 buffer.Append(currentChar);
             }
-            if (!allowedChars.Contains(Lookahead()))
+            if (!allowedChars.Contains(Lookahead()) && !IsAtEnd())
             {
                 NextChar();
                 buffer.Append(currentChar);
 
-                IllegalToken(buffer.ToString(), "Illegal char sequence");
+                IllegalToken(buffer.ToString(), ErrorMessage.LE_ILLEGAL_CHAR_SEQ);
                 return;
             }
             AddToken(TokenType.INT_LITERAL, buffer.ToString());
@@ -237,6 +252,7 @@ namespace MiniPL
             if (Lookahead() == '/')
             {
                 while (!IsAtEnd() && Lookahead() != '\n') NextChar();
+                buffer.Clear();
                 Tokenize();
             }
             // Multi-line comment
@@ -256,9 +272,10 @@ namespace MiniPL
                 }
                 if (!commentClosed)
                 {
-                    IllegalToken("", "Unenclosed comment");
+                    IllegalToken("", ErrorMessage.LE_UNENCLOSED_COMMENT);
                     return;
                 }
+                buffer.Clear();
                 Tokenize();
             }
             // Divider
@@ -297,7 +314,7 @@ namespace MiniPL
             else
             {
                 buffer.Append(currentChar);
-                IllegalToken(buffer.ToString(), "Expected \"..\", got \".\" instead");
+                IllegalToken(buffer.ToString(), ErrorMessage.LE_RANGE_EXPECTED);
                 return;
             }
             buffer.Clear();
@@ -357,7 +374,7 @@ namespace MiniPL
             File = string.Join("\n", lines);
             if (File == "")
             {
-                throw new LexicalError("Source file is empty", currentPos);
+                throw new LexicalError(ErrorMessage.LE_SOURCE_EMPTY, new Position(1, 1));
             }
             symbols = new Queue<char>(File);
             fileIsRead = true;

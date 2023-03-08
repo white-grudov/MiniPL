@@ -1,5 +1,6 @@
-﻿var nTimes$ : int := 0;
-print "How many times?";
+﻿var nTimes : int := 0;
+
+print "How many times? ";
 read nTimes;
 var x : int;
 for x in 0..nTimes-1 do
@@ -8,4 +9,6 @@ for x in 0..nTimes-1 do
 end for;
 if x = nTimes do
 	print "x is equal to ntimes";
+else
+	print nTimes;
 end if;

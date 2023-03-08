@@ -17,7 +17,7 @@
         FOR, IN, IF, ELSE, DO, END, VAR, PRINT, READ,
         INT, STRING, BOOL, ASSERT,
 
-        DUMMY, EOF, ILLEGAL
+        EOF, ILLEGAL
     }
     public static class TokenTypeExtenstions
     {
@@ -51,7 +51,7 @@
             return string.Format("Ln: {0, -4} Cl: {1, -4}", line, column);
         }
     }
-    struct Token
+    public struct Token
     {
         public TokenType Type { get; }
         public string Value { get; }
@@ -62,12 +62,6 @@
             Type = type;
             Value = value;
             Pos = pos;
-        }
-        public Token(Token token)
-        {
-            Type = token.Type;
-            Value = token.Value;
-            Pos = token.Pos;
         }
     }
 }

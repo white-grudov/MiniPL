@@ -2,7 +2,7 @@
   "profiles": {
     "MiniPL": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\\\Users\\\\whitegrudov\\\\source\\\\repos\\\\MiniPL\\\\MiniPL\\\\test.mpl\r\n-debug"
+      "commandLineArgs": "C:/Users/whitegrudov/source/repos/MiniPL/TestPrograms/main.mpl\r\n-debug"
     }
   }
 }

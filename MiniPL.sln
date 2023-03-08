@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniPL", "MiniPL\MiniPL.csproj", "{155E4302-09C8-4D24-8847-70FA54EFE6C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIniPLTests", "MIniPLTests\MIniPLTests.csproj", "{AE866315-8612-487C-AC5A-89EE4232D69F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniPLTests", "MIniPLTests\MiniPLTests.csproj", "{AE866315-8612-487C-AC5A-89EE4232D69F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

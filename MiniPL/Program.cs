@@ -14,6 +14,7 @@
  * 05.03, 1 hour,  started redoing error handling
  * 06.03, 4 hours, implemented statement recovery error handling in parser and semantic analyzer
  * 07.03, 3 hours, started implementing tests, added comments and refactored scanner
+ * 08.03, 4 hours, wrote tests for scanner, small bugfixes
  */
 
 /* What to do:
@@ -32,8 +33,8 @@ namespace MiniPL
             {
                 if (args[1] == "-debug") debugMode = true;
             }
-            Application app = new(args[0], debugMode);
-            app.Run();
+            MiniPL interpreter = new(args[0], debugMode);
+            interpreter.Run();
         }
     }
 }
