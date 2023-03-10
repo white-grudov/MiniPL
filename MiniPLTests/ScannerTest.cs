@@ -1,11 +1,10 @@
-using MiniPL;
-
 namespace MiniPLTests
 {
     [TestClass]
     public class ScannerTest
     {
         private readonly string prefix = "C:\\Users\\whitegrudov\\source\\repos\\MiniPL\\TestPrograms\\ScannerTest\\";
+        private readonly string validPrefix = "C:\\Users\\whitegrudov\\source\\repos\\MiniPL\\TestPrograms\\ValidPrograms\\";
 
         // Checks if error is thrown when file does not exists
         [DataRow("non_existing_file.mpl")]
@@ -80,6 +79,18 @@ namespace MiniPLTests
             {
                 StringAssert.Contains(e.Message, errorType);
             }
+        }
+        [DataRow("1.mpl")]
+        [DataRow("2.mpl")]
+        [DataRow("3.mpl")]
+        [TestMethod]
+        public void Tokenize_ValidPrograms_GenerateTokens(string path)
+        {
+            Scanner scanner = new(validPrefix + path, false);
+
+            var tokens = scanner.GenerateTokens();
+
+            Assert.AreNotEqual(tokens.Count, 0);
         }
     }
 }

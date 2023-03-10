@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
-    interface IVisitor
+    public interface IVisitor
     {
         void Visit(ProgNode node);
         void Visit(StmtsNode node);

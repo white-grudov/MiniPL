@@ -1,5 +1,6 @@
 ﻿namespace MiniPL
 {
+    // All possible token types
     public enum TokenType
     {
         // single-char tokens
@@ -17,8 +18,10 @@
         FOR, IN, IF, ELSE, DO, END, VAR, PRINT, READ,
         INT, STRING, BOOL, ASSERT,
 
+        // invalid
         EOF, ILLEGAL
     }
+    // Convert enum represantation of tokens to generalized form (used by semantic analyzer)
     public static class TokenTypeExtenstions
     {
         public static string ToFriendlyString(this TokenType me)
@@ -36,7 +39,7 @@
             }
         }
     }
-
+    // Position of the token
     public struct Position
     {
         public int line;
@@ -51,6 +54,7 @@
             return string.Format("Ln: {0, -4} Cl: {1, -4}", line, column);
         }
     }
+    // Struct token which contains the type, literal value and position
     public struct Token
     {
         public TokenType Type { get; }

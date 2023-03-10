@@ -28,6 +28,10 @@
             }
             return _instance;
         }
+        public void ClearTable()
+        {
+            Table.Clear();
+        }
         public void Declare(string name, string type, object? value = null)
         {
             Table[name] = new(type);

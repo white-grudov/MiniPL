@@ -7,7 +7,7 @@
     }
     public class LexicalError : MiniPLException
     {
-        private static string type = "LexicalError";
+        public const string type = "LexicalError";
         public LexicalError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
         {
             Pos = pos;
@@ -15,7 +15,7 @@
     }
     public class SyntaxError : MiniPLException
     {
-        private static string type = "SyntaxError";
+        public const string type = "SyntaxError";
         public SyntaxError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
         {
             Pos = pos;
@@ -23,7 +23,7 @@
     }
     public class SemanticError : MiniPLException
     {
-        private static string type = "SemanticError";
+        public const string type = "SemanticError";
         public SemanticError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
         {
             Pos = pos;
@@ -31,7 +31,7 @@
     }
     public class RuntimeError : MiniPLException
     {
-        private static string type = "RuntimeError";
+        public const string type = "RuntimeError";
         public RuntimeError(string message, Position pos) : base(ExMessage.Form(type, message, pos))
         {
             Pos = pos;

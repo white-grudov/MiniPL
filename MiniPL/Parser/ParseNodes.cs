@@ -1,13 +1,13 @@
 ﻿namespace MiniPL
 {
     // for further expansion with visitor pattern
-    interface INode
+    public interface INode
     {
         public List<INode> GetAllChildren();
         public object? Accept(IVisitor visitor);
         public void Print(int indent = 0);
     }
-    abstract class Node : INode
+    public abstract class Node : INode
     {
         public abstract List<INode> GetAllChildren();
         public abstract object? Accept(IVisitor visitor);
@@ -26,13 +26,13 @@
             }
         }
     }
-    class ErrorNode : Node
+    public class ErrorNode : Node
     {
         public override object? Accept(IVisitor visitor) { return null; }
         public override List<INode> GetAllChildren() { return new List<INode>(); }
     }
     // root node
-    class ProgNode : Node
+    public class ProgNode : Node
     {
         public StmtsNode? Stmts { get; protected set; }
         public ProgNode(StmtsNode? stmts = null)
@@ -54,8 +54,8 @@
             return null;
         }
     }
-    abstract class StmtNode : Node { }
-    class StmtsNode : Node
+    public abstract class StmtNode : Node { }
+    public class StmtsNode : Node
     {
         public List<StmtNode> StmtNodes { get; protected set; }
         public StmtsNode()
@@ -81,7 +81,7 @@
             return null;
         }
     }
-    class DeclNode : StmtNode
+    public class DeclNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
         public TypeNode Type { get; protected set; }
@@ -108,7 +108,7 @@
             return null;
         }
     }
-    class AssignNode : StmtNode
+    public class AssignNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
         public ExprNode Expr { get; protected set; }
@@ -127,7 +127,7 @@
             return null;
         }
     }
-    class ForNode : StmtNode
+    public class ForNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
         public ExprNode StartExpr { get; protected set; }
@@ -150,7 +150,7 @@
             return null;
         }
     }
-    class IfNode : StmtNode
+    public class IfNode : StmtNode
     {
         public ExprNode Expr { get; protected set; }
         public StmtsNode IfStmts { get; protected set; }
@@ -177,7 +177,7 @@
             return null;
         }
     }
-    class ReadNode : StmtNode
+    public class ReadNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
         public ReadNode(IdentNode ident)
@@ -194,7 +194,7 @@
             return null;
         }
     }
-    class PrintNode : StmtNode
+    public class PrintNode : StmtNode
     {
         public ExprNode Expr { get; protected set; }
         public PrintNode(ExprNode expr)
@@ -211,70 +211,72 @@
             return null;
         }
     }
-    class ExprNode : Node, OpndNodeChild
+    public abstract class ExprNode : Node, OpndNodeChild
     {
-        private enum States
-        {
-            ONLY_LEFT_OPND, UN_OP, LEFT_RIGHT_OPND
-        }
-        public UnOpNode? UnOp { get; protected set; }
-        public OpndNode LeftOpnd { get; protected set; }
-        public OpNode? Op { get; protected set; }
-        public OpndNode? RightOpnd { get; protected set; }
         public Position Pos { get; protected set; }
         public string? Type { get; set; }
-
-        private States state = States.ONLY_LEFT_OPND;
-        public ExprNode(OpndNode leftOpnd, Position pos)
-        {
-            LeftOpnd = leftOpnd;
-            UnOp = null;
-            Op = null;
-            RightOpnd = null;
-            Pos = pos;
-        }
-        public void AddRightOpnd(OpNode op, OpndNode rightOpnd)
-        {
-            if (state == States.UN_OP)
-                throw new Exception("Node is already with unary operator!");
-            Op = op;
-            RightOpnd = rightOpnd;
-            state = States.LEFT_RIGHT_OPND;
-        }
-        public void AddUnOp(UnOpNode unOp)
-        {
-            if (state == States.LEFT_RIGHT_OPND)
-                throw new Exception("Node is already with binary operator!");
-            UnOp = unOp;
-            state = States.UN_OP;
-        }
-        public override List<INode> GetAllChildren()
-        {
-            return state switch
-            {
-                States.ONLY_LEFT_OPND => new List<INode>() { LeftOpnd },
-                States.UN_OP => new List<INode>() { UnOp, LeftOpnd },
-                States.LEFT_RIGHT_OPND => new List<INode>() { LeftOpnd, Op, RightOpnd },
-                _ => new List<INode>(),
-            };
-        }
         public override object Accept(IVisitor visitor)
         {
             return visitor.Visit(this);
         }
     }
-    interface OpndNodeChild : INode
+    public class UExprNode : ExprNode
+    {
+        public UnOpNode UnOp { get; protected set; }
+        public OpndNode LeftOpnd { get; protected set; }
+        public UExprNode(UnOpNode unOp, OpndNode leftOpnd, Position pos)
+        {
+            UnOp = unOp;
+            LeftOpnd = leftOpnd;
+            Pos = pos;
+        }
+        public override List<INode> GetAllChildren()
+        {
+            return new List<INode>() { UnOp, LeftOpnd };
+        }
+    }
+    public class LExprNode : ExprNode
+    {
+        public OpndNode LeftOpnd { get; protected set; }
+        public LExprNode(OpndNode leftOpnd, Position pos)
+        {
+            LeftOpnd = leftOpnd;
+            Pos = pos;
+        }
+        public override List<INode> GetAllChildren()
+        {
+            return new List<INode>() { LeftOpnd };
+        }
+    }
+    public class LRExprNode : ExprNode
+    {
+        public OpndNode LeftOpnd { get; protected set; }
+        public OpNode Op { get; protected set; }
+        public OpndNode RightOpnd { get; protected set; }
+        public LRExprNode(OpndNode leftOpnd, OpNode op, OpndNode rightOpnd, Position pos)
+        {
+            LeftOpnd = leftOpnd;
+            Op = op;
+            RightOpnd = rightOpnd;
+            Pos = pos;
+        }
+        public override List<INode> GetAllChildren()
+        {
+            return new List<INode>() { LeftOpnd, Op, RightOpnd };
+        }
+    }
+    public interface OpndNodeChild : INode
     {
         public new object Accept(IVisitor visitor);
     }
-    class OpndNode : Node
+    public class OpndNode : Node
     {
         public OpndNodeChild Child { get; protected set; }
         public Position Pos { get; protected set; }
         public OpndNode(OpndNodeChild child)
         {
             Child = child;
-            if (child.GetType() == typeof(ExprNode))
+            if (child is ExprNode)
             {
                 Pos = ((ExprNode)child).Pos;
             }
@@ -292,7 +294,7 @@
             return visitor.Visit(this);
         }
     }
-    class TokenNode : Node
+    public class TokenNode : Node
     {
         public Token Token { get; protected set; }
         public TokenNode(Token token)
@@ -308,27 +310,27 @@
             return visitor.Visit(this);
         }
     }
-    class OpNode : TokenNode
+    public class OpNode : TokenNode
     {
         public OpNode(Token token) : base(token) { }
     }
-    class UnOpNode : TokenNode
+    public class UnOpNode : TokenNode
     {
         public UnOpNode(Token token) : base(token) { }
     }
-    class IdentNode : TokenNode, OpndNodeChild
+    public class IdentNode : TokenNode, OpndNodeChild
     {
         public IdentNode(Token token) : base(token) { }
     }
-    class TypeNode : TokenNode
+    public class TypeNode : TokenNode
     {
         public TypeNode(Token token) : base(token) { }
     }
-    class IntNode : TokenNode, OpndNodeChild
+    public class IntNode : TokenNode, OpndNodeChild
     {
         public IntNode(Token token) : base(token) { }
     }
-    class StrNode : TokenNode, OpndNodeChild
+    public class StrNode : TokenNode, OpndNodeChild
     {
         public StrNode(Token token) : base(token) { }
     }

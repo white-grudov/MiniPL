@@ -2,13 +2,17 @@
 {
     public class ErrorMessage
     {
-        public const string LE_SOURCE_EMPTY = "Source file is empty";
-        public const string LE_INVALID_CHAR = "Invalid char error";
-        public const string LE_UNTERMINATED_STR = "Unterminated string";
+        public const string LE_SOURCE_EMPTY        = "Source file is empty";
+        public const string LE_INVALID_CHAR        = "Invalid char error";
+        public const string LE_UNTERMINATED_STR    = "Unterminated string";
         public const string LE_UNRECOGNIZED_ESCAPE = "Unrecognized escape sequence";
-        public const string LE_ILLEGAL_CHAR_SEQ = "Illegal char sequence";
-        public const string LE_UNENCLOSED_COMMENT = "Unenclosed comment";
-        public const string LE_RANGE_EXPECTED = "Expected \"..\", got \".\" instead";
+        public const string LE_ILLEGAL_CHAR_SEQ    = "Illegal char sequence";
+        public const string LE_UNENCLOSED_COMMENT  = "Unenclosed comment";
+        public const string LE_RANGE_EXPECTED      = "Expected \"..\", got \".\" instead";
+
+        public const string SE_UNEXPECTED_TOKEN    = "Unexpected token";
+        public const string SE_MISSING_SEMICOLON   = "Missing semicolon";
+        public const string SE_ILLEGAL_TOKEN       = "Illegal token";
     }
     public class ExMessage
     {

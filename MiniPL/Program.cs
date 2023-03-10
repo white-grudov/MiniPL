@@ -15,6 +15,8 @@
  * 06.03, 4 hours, implemented statement recovery error handling in parser and semantic analyzer
  * 07.03, 3 hours, started implementing tests, added comments and refactored scanner
  * 08.03, 4 hours, wrote tests for scanner, small bugfixes
+ * 09.03, 2 hours, wrote comments for parser, started writing tests for parser
+ * 10.03, 3 hours, wrote tests for parser
  */
 
 /* What to do:
@@ -28,8 +30,8 @@ namespace MiniPL
         static void Main(string[] args)
         {
             bool debugMode = false;
-            if (args.Length < 2) return;
-            else if (args.Length < 3)
+            if (args.Length < 1) return; // if no path to file specified
+            else if (args.Length == 2) // debug mode flag
             {
                 if (args[1] == "-debug") debugMode = true;
             }

@@ -26,7 +26,7 @@
         {
             Ast = ast;
             Context = Context.GetInstance();
-    }
+        }
         public void Analyze()
         {
             Ast.Root.Accept(this);
@@ -35,12 +35,10 @@
                 throw new ErrorList(exceptions);
             }
         }
-
         public void Visit(ProgNode node)
         {
             node.Stmts?.Accept(this);
         }
-
         public void Visit(StmtsNode node)
         {
             foreach (var child in node.GetAllChildren())
@@ -48,7 +46,6 @@
                 child.Accept(this);
             }
         }
-
         public void Visit(DeclNode node)
         {
             string name = node.Ident.Token.Value;
@@ -64,7 +61,6 @@
             string exprType = (string)node.Expr.Accept(this);
             MatchTypes(exprType, type, node.Expr.Pos);
         }
-
         public void Visit(AssignNode node)
         {
             string name = node.Ident.Token.Value;
@@ -114,12 +110,10 @@
             node.IfStmts.Accept(this);
             node.ElseStmts?.Accept(this);
         }
-
         public void Visit(PrintNode node)
         {
             node.Expr.Accept(this);
         }
-
         public void Visit(ReadNode node)
         {
             string name = node.Ident.Token.Value;
@@ -129,33 +123,37 @@
         public object Visit(ExprNode node)
         {
             // expr has only one operand
-            if (node.UnOp == null && node.Op == null)
+            if (node.GetType() == typeof(LExprNode))
             {
-                string type = (string)node.LeftOpnd.Accept(this);
+                string type = (string)((LExprNode)node).LeftOpnd.Accept(this);
                 node.Type = type;
                 return type;
             }
             // expr has unary operator
-            else if (node.UnOp != null && node.Op == null)
+            else if (node.GetType() == typeof(UExprNode))
             {
+                UExprNode currentNode = (UExprNode)node;
+
                 string desiredOpndType = TFS(TokenType.BOOL);
-                string opndType = (string)node.LeftOpnd.Accept(this);
-                MatchTypes(desiredOpndType, opndType, node.LeftOpnd.Pos);
+                string opndType = (string)currentNode.LeftOpnd.Accept(this);
+                MatchTypes(desiredOpndType, opndType, currentNode.LeftOpnd.Pos);
 
                 node.Type = opndType;
                 return opndType;
             }
             // expr has two operands
-            else if (node.UnOp == null && node.Op != null && node.RightOpnd != null)
+            else if (node.GetType() == typeof(LRExprNode))
             {
-                string leftOpndType = (string)node.LeftOpnd.Accept(this);
-                string rightOpndType = (string)node.RightOpnd.Accept(this);
-                MatchTypes(leftOpndType, rightOpndType, node.LeftOpnd.Pos);
+                LRExprNode currentNode = (LRExprNode)node;
 
-                string opType = (string)node.Op.Accept(this);
+                string leftOpndType = (string)currentNode.LeftOpnd.Accept(this);
+                string rightOpndType = (string)currentNode.RightOpnd.Accept(this);
+                MatchTypes(leftOpndType, rightOpndType, currentNode.LeftOpnd.Pos);
+
+                string opType = (string)currentNode.Op.Accept(this);
                 if (!allowedTypes[opType].Contains(leftOpndType))
                 {
-                    exceptions.Add(new SemanticError("Variable type dismatch", node.Op.Token.Pos));
+                    exceptions.Add(new SemanticError("Variable type dismatch", currentNode.Op.Token.Pos));
                 }
 
                 node.Type = leftOpndType;
@@ -164,12 +162,10 @@
             }
             else throw new Exception("Unexpected ExprNode children");
         }
-
         public object Visit(OpndNode node)
         {
             return node.Child.Accept(this);
         }
-
         public object Visit(TokenNode node)
         {
             if (node.Token.Type == TokenType.IDENTIFIER)

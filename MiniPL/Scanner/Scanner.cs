@@ -59,7 +59,7 @@ namespace MiniPL
         };
         private readonly List<char> blankSpaces = new()
         {
-            ' ', '\t', '\n'
+            ' ', '\t',
         };
         private readonly Dictionary<char, char> escapeChars = new()
         {
@@ -332,13 +332,18 @@ namespace MiniPL
         // Next char is dequeued and the current position is updated
         private void NextChar()
         {
+            if (IsAtEnd())
+            {
+                currentChar = ' ';
+                return;
+            }
             currentChar = symbols.Dequeue();
             currentPos.column++;
             if (currentChar == '\n')
             {
-                currentPos.column = 1;
+                currentPos.column = 0;
                 currentPos.line++;
-                currentChar = symbols.Dequeue();
+                NextChar();
             }
         }
         // Checks if there are more characters left

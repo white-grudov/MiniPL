@@ -12,6 +12,7 @@
         public void Interpret()
         {
             Ast.Root.Accept(this);
+            Context.ClearTable();
         }
         public void Visit(ProgNode node)
         {
@@ -92,29 +93,31 @@
         public object Visit(ExprNode node)
         {
             // expr has only one operand
-            if (node.UnOp == null && node.Op == null)
+            if (node.GetType() == typeof(LExprNode))
             {
-                return node.LeftOpnd.Accept(this);
+                return ((LExprNode)node).LeftOpnd.Accept(this);
             }
             // expr has unary operator
-            else if (node.UnOp != null && node.Op == null)
+            else if (node.GetType() == typeof(UExprNode))
             {
-                bool value = (bool)node.LeftOpnd.Accept(this);
-                if (node.UnOp.Token.Type == TokenType.NOT)
+                UExprNode currentNode = (UExprNode)node;
+                bool value = (bool)currentNode.LeftOpnd.Accept(this);
+                if (currentNode.UnOp.Token.Type == TokenType.NOT)
                 {
                     return !value;
                 }
                 else throw new Exception("Unexpected unOp type");
             }
             // expr has two operands
-            else if (node.UnOp == null && node.Op != null && node.RightOpnd != null)
+            else if (node.GetType() == typeof(LRExprNode))
             {
-                object leftValue = node.LeftOpnd.Accept(this);
-                object rightValue = node.RightOpnd.Accept(this);
+                LRExprNode currentNode = (LRExprNode)node;
+                object leftValue = currentNode.LeftOpnd.Accept(this);
+                object rightValue = currentNode.RightOpnd.Accept(this);
 
                 return node.Type switch
                 {
-                    "int" => node.Op.Token.Value switch
+                    "int" => currentNode.Op.Token.Value switch
                     {
                         "+" => ToInt(leftValue) + ToInt(rightValue),
                         "-" => ToInt(leftValue) - ToInt(rightValue),
@@ -125,13 +128,13 @@
                         ">" => ToInt(leftValue) > ToInt(rightValue),
                         _ => throw new Exception("Unexpected operator")
                     },
-                    "string" => node.Op.Token.Value switch
+                    "string" => currentNode.Op.Token.Value switch
                     {
                         "+" => (string)leftValue + (string)rightValue,
                         "=" => (string)leftValue == (string)rightValue,
                         _ => throw new Exception("Unexpected operator")
                     },
-                    "bool" => node.Op.Token.Value switch
+                    "bool" => currentNode.Op.Token.Value switch
                     {
                         "=" => (bool)leftValue == (bool)rightValue,
                         "&" => (bool)leftValue && (bool)rightValue,
