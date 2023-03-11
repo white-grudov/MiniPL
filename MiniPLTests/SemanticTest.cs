@@ -53,6 +53,8 @@
         [DataRow("1.mpl")]
         [DataRow("2.mpl")]
         [DataRow("3.mpl")]
+        [DataRow("4.mpl")]
+        [DataRow("5.mpl")]
         [TestMethod]
         // Check if analysis is performed correctly on valid programs
         public void Analyze_ValidPrograms_AnalysisPerformedCorrectly(string path)

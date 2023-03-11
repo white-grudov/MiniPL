@@ -1,4 +1,4 @@
-﻿print "Sum of n numbers\n";
+print "Sum of n numbers\n";
 print "Enter n: ";
 var n : int;
 read n;

@@ -48,19 +48,6 @@ namespace MiniPLTests
                 }
             }
         }
-        [DataRow("1.mpl")]
-        [DataRow("2.mpl")]
-        [DataRow("3.mpl")]
-        [TestMethod]
-        // Check if parser builds valid ASTs with valid programs
-        public void Parse_ValidPrograms_BuildAST(string path)
-        {
-            Parser parser = new (validPrefix + path, false);
-
-            parser.Parse();
-
-            Assert.IsNotNull(parser.Ast.Root.Stmts);
-        }
         [DataRow("nested_operations.mpl")]
         [TestMethod]
         // Check if parser can build nested expressions correctly
@@ -195,6 +182,21 @@ namespace MiniPLTests
             {
                 CompareTrees(eg.Expected, eg.Generated);
             }
+        }
+        [DataRow("1.mpl")]
+        [DataRow("2.mpl")]
+        [DataRow("3.mpl")]
+        [DataRow("4.mpl")]
+        [DataRow("5.mpl")]
+        [TestMethod]
+        // Check if parser builds valid ASTs with valid programs
+        public void Parse_ValidPrograms_BuildAST(string path)
+        {
+            Parser parser = new(validPrefix + path, false);
+
+            parser.Parse();
+
+            Assert.IsNotNull(parser.Ast.Root.Stmts);
         }
     }
 }

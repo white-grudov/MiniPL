@@ -115,6 +115,8 @@ namespace MiniPLTests
         [DataRow("1.mpl", "", "16")]
         [DataRow("2.mpl", "1", "0 : Hello, World!")]
         [DataRow("3.mpl", "5", "The result is: 120")]
+        [DataRow("4.mpl", "15", "610")]
+        [DataRow("5.mpl", "20", "The sum of 20 numbers is: 210")]
         [TestMethod]
         // Check if valid programs are executed with correct input/output
         public void Interpret_ValidPrograms_ExecuteProgram(string path, string input, string expected)
