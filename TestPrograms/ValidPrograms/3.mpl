@@ -1,4 +1,4 @@
-print "Give a number";
+print "Give a number: ";
 var n : int;
 read n;
 var v : int := 1;

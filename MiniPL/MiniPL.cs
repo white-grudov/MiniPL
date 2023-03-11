@@ -24,6 +24,7 @@
                 Parser.Parse();
                 Analyzer.Analyze();
                 Interpreter.Interpret();
+                Context.GetInstance().ClearTable();
             }
             // Panic mode recovery (for scanner and interpreter)
             catch (MiniPLException e)
@@ -37,6 +38,12 @@
                 {
                     PrintError(error);
                 }
+            }
+            // Non-MiniPL error caused by some bug (hope it won't happen)
+            catch (Exception e)
+            {
+                Console.WriteLine("Interpreter ran into an unexpected error:");
+                Console.WriteLine(e.Message);
             }
         }
         /* Print the error in the console, which includes the error type, message passed,

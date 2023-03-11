@@ -256,6 +256,7 @@
             // Checks if there is unary operator NOT
             if (Lookahead().Type == TokenType.NOT)
             {
+                unOp = true;
                 if (!ProcessChild(TokenType.NOT, ref childNodes)) return null;
             }
             if (!ExpectToken(opndTypes)) return null;

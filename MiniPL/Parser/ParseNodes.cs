@@ -1,12 +1,13 @@
 ﻿namespace MiniPL
 {
-    // for further expansion with visitor pattern
+    // Interface for nodes
     public interface INode
     {
         public List<INode> GetAllChildren();
         public object? Accept(IVisitor visitor);
         public void Print(int indent = 0);
     }
+    // Abstract class Node which defines Print() method
     public abstract class Node : INode
     {
         public abstract List<INode> GetAllChildren();
@@ -26,12 +27,13 @@
             }
         }
     }
+    // Error node for processing parse errrors
     public class ErrorNode : Node
     {
         public override object? Accept(IVisitor visitor) { return null; }
         public override List<INode> GetAllChildren() { return new List<INode>(); }
     }
-    // root node
+    // Program root node
     public class ProgNode : Node
     {
         public StmtsNode? Stmts { get; protected set; }
@@ -54,7 +56,9 @@
             return null;
         }
     }
+    // Abstract node for statement
     public abstract class StmtNode : Node { }
+    // Statements node that stores the list of statements
     public class StmtsNode : Node
     {
         public List<StmtNode> StmtNodes { get; protected set; }
@@ -81,6 +85,7 @@
             return null;
         }
     }
+    // Declaration node which has identifier, type and optional expression
     public class DeclNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
@@ -108,6 +113,7 @@
             return null;
         }
     }
+    // Assignment node which has identifier and expression
     public class AssignNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
@@ -127,6 +133,7 @@
             return null;
         }
     }
+    // For node which stores identifier, two range expressions and nested statements
     public class ForNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
@@ -150,6 +157,7 @@
             return null;
         }
     }
+    // If node which stores conditional expression, nested statements and optional else statements
     public class IfNode : StmtNode
     {
         public ExprNode Expr { get; protected set; }
@@ -177,6 +185,7 @@
             return null;
         }
     }
+    // Read node which stores identifier
     public class ReadNode : StmtNode
     {
         public IdentNode Ident { get; protected set; }
@@ -194,6 +203,7 @@
             return null;
         }
     }
+    // Print node which stores expression
     public class PrintNode : StmtNode
     {
         public ExprNode Expr { get; protected set; }
@@ -211,6 +221,7 @@
             return null;
         }
     }
+    // Abstract expr node class which also inherits from operand child node interface and stores position
     public abstract class ExprNode : Node, OpndNodeChild
     {
         public Position Pos { get; protected set; }
@@ -220,6 +231,7 @@
             return visitor.Visit(this);
         }
     }
+    // Unary operator expression node derived class
     public class UExprNode : ExprNode
     {
         public UnOpNode UnOp { get; protected set; }
@@ -235,6 +247,7 @@
             return new List<INode>() { UnOp, LeftOpnd };
         }
     }
+    // Only one operand expression node derived class
     public class LExprNode : ExprNode
     {
         public OpndNode LeftOpnd { get; protected set; }
@@ -248,6 +261,7 @@
             return new List<INode>() { LeftOpnd };
         }
     }
+    // Two operands expression node derived class
     public class LRExprNode : ExprNode
     {
         public OpndNode LeftOpnd { get; protected set; }
@@ -265,10 +279,12 @@
             return new List<INode>() { LeftOpnd, Op, RightOpnd };
         }
     }
+    // Interface for operand node children
     public interface OpndNodeChild : INode
     {
         public new object Accept(IVisitor visitor);
     }
+    // Operand node which stores operand node child and position
     public class OpndNode : Node
     {
         public OpndNodeChild Child { get; protected set; }
@@ -294,7 +310,8 @@
             return visitor.Visit(this);
         }
     }
-    public class TokenNode : Node
+    // Abstract token node class for nodes which are based solely on corresponding tokens
+    abstract public class TokenNode : Node
     {
         public Token Token { get; protected set; }
         public TokenNode(Token token)
@@ -310,6 +327,7 @@
             return visitor.Visit(this);
         }
     }
+    // Nodes derived from token node
     public class OpNode : TokenNode
     {
         public OpNode(Token token) : base(token) { }

@@ -1,5 +1,10 @@
-﻿var i : int = 2;
-int i = 3
-42 - 23;
-ident = 2 = 3;
-if for for if;
+﻿print "Give a number: ";
+var n : int;
+read n;
+var v : int := 1;
+var i : int;
+for i in 1..n do
+    v := v * i;
+end for;
+print "The result is: ";
+print v;

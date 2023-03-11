@@ -1,5 +1,4 @@
-﻿/* 
- * 02.02, 2 hours, started implementing scanner
+﻿/* 02.02, 2 hours, started implementing scanner
  * 03.02, 1 hour,  started implementing token table
  * 05.02, 6 hours, finished main scanner logic, removed token table, started implementing parser
  * 08.02, 3 hours, started implementing parser, small fixes for scanner
@@ -16,7 +15,8 @@
  * 07.03, 3 hours, started implementing tests, added comments and refactored scanner
  * 08.03, 4 hours, wrote tests for scanner, small bugfixes
  * 09.03, 2 hours, wrote comments for parser, started writing tests for parser
- * 10.03, 3 hours, wrote tests for parser
+ * 10.03, 6 hours, wrote tests for parser and semantic analyzer
+ * 11.03, 3 hours, wrote tests for interpreter
  */
 
 /* What to do:

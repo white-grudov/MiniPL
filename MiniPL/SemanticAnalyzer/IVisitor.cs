@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniPL
 {
+    // Interface for the visitor pattern used in the semantic analyzer and the interpreter
     public interface IVisitor
     {
         void Visit(ProgNode node);

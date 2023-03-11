@@ -1,6 +1,10 @@
 ﻿namespace MiniPL
 {
-    internal class Interpreter : IVisitor
+    /* Interpreter is the main component of the MiniPL interpreter, which takes the
+     * valid AST, checked by the semantic analyzer, and executes it statement by
+     * statement.
+     */
+    public class Interpreter : IVisitor
     {
         private readonly AST Ast;
         private readonly Context Context;
@@ -9,22 +13,21 @@
             Context = Context.GetInstance();
             Ast = ast;
         }
+        // Runs the program
         public void Interpret()
         {
             Ast.Root.Accept(this);
-            Context.ClearTable();
         }
         public void Visit(ProgNode node)
         {
             node.Stmts?.Accept(this);
         }
-
         public void Visit(StmtsNode node)
         {
             foreach (var child in node.GetAllChildren())
                 child.Accept(this);
         }
-
+        // If expr is null returns, otherwise assigns the value
         public void Visit(DeclNode node)
         {
             if (node.Expr == null) return;
@@ -32,14 +35,14 @@
             object value = node.Expr.Accept(this);
             Context.Assign(name, value);
         }
-
+        // Assigns the value
         public void Visit(AssignNode node)
         {
             string name = node.Ident.Token.Value;
             object value = node.Expr.Accept(this);
             Context.Assign(name, value);
         }
-
+        // Gets the values of lower and upper bounds of range and runs the nested statements
         public void Visit(ForNode node)
         {
             string indexName = node.Ident.Token.Value;
@@ -53,7 +56,7 @@
                 node.Stmts.Accept(this);
             }
         }
-
+        // Evaluates the condition and runs the nested statements
         public void Visit(IfNode node)
         {
             bool condition = (bool)node.Expr.Accept(this);
@@ -66,13 +69,15 @@
                 node.ElseStmts?.Accept(this);
             }
         }
-
+        // Evaluates the expression and prints it
         public void Visit(PrintNode node)
         {
             object expr = node.Expr.Accept(this);
             Console.Write(expr);
         }
-
+        /* Reads the input and assigns it to value. If input cannot be casted to int if needed,
+         * the exception is thrown
+         */
         public void Visit(ReadNode node)
         {
             string name = node.Ident.Token.Value;
@@ -82,14 +87,12 @@
             {
                 if (!int.TryParse(input, out _))
                 {
-                    throw new RuntimeError("Unable to cast input to int", node.Ident.Token.Pos);
+                    throw new RuntimeError(ErrorMessage.RE_CAST_TO_INT, node.Ident.Token.Pos);
                 }
             }
-
             string value = input ?? "";
             Context.Assign(name, value);
         }
-
         public object Visit(ExprNode node)
         {
             // expr has only one operand
@@ -115,42 +118,63 @@
                 object leftValue = currentNode.LeftOpnd.Accept(this);
                 object rightValue = currentNode.RightOpnd.Accept(this);
 
-                return node.Type switch
+                switch (node.Type)
                 {
-                    "int" => currentNode.Op.Token.Value switch
-                    {
-                        "+" => ToInt(leftValue) + ToInt(rightValue),
-                        "-" => ToInt(leftValue) - ToInt(rightValue),
-                        "*" => ToInt(leftValue) * ToInt(rightValue),
-                        "/" => ToInt(leftValue) / ToInt(rightValue),
-                        "=" => ToInt(leftValue) == ToInt(rightValue),
-                        "<" => ToInt(leftValue) < ToInt(rightValue),
-                        ">" => ToInt(leftValue) > ToInt(rightValue),
-                        _ => throw new Exception("Unexpected operator")
-                    },
-                    "string" => currentNode.Op.Token.Value switch
-                    {
-                        "+" => (string)leftValue + (string)rightValue,
-                        "=" => (string)leftValue == (string)rightValue,
-                        _ => throw new Exception("Unexpected operator")
-                    },
-                    "bool" => currentNode.Op.Token.Value switch
-                    {
-                        "=" => (bool)leftValue == (bool)rightValue,
-                        "&" => (bool)leftValue && (bool)rightValue,
-                        _ => throw new Exception("Unexpected operator")
-                    },
-                    _ => throw new Exception("Unexpected type")
-                };
+                    case "int":
+                        switch (currentNode.Op.Token.Value)
+                        {
+                            case "+":
+                                return ToInt(leftValue) + ToInt(rightValue);
+                            case "-":
+                                return ToInt(leftValue) - ToInt(rightValue);
+                            case "*":
+                                return ToInt(leftValue) * ToInt(rightValue);
+                            case "/":
+                                if (ToInt(rightValue) == 0)
+                                {
+                                    throw new RuntimeError(ErrorMessage.RE_DIVISION_BY_ZERO, currentNode.Op.Token.Pos);
+                                }
+                                return ToInt(leftValue) / ToInt(rightValue);
+                            case "=":
+                                return ToInt(leftValue) == ToInt(rightValue);
+                            case "<":
+                                return ToInt(leftValue) < ToInt(rightValue);
+                            case ">":
+                                return ToInt(leftValue) > ToInt(rightValue);
+                            default:
+                                throw new Exception("Unexpected operator");
+                        }
+                    case "string":
+                        switch (currentNode.Op.Token.Value)
+                        {
+                            case "+":
+                                return (string)leftValue + (string)rightValue;
+                            case "=":
+                                return (string)leftValue == (string)rightValue;
+                            default:
+                                throw new Exception("Unexpected operator");
+                        }
+                    case "bool":
+                        switch (currentNode.Op.Token.Value)
+                        {
+                            case "=":
+                                return (bool)leftValue == (bool)rightValue;
+                            case "&":
+                                return (bool)leftValue && (bool)rightValue;
+                            default:
+                                throw new Exception("Unexpected operator");
+                        }
+                    default:
+                        throw new Exception("Unexpected type");
+                }
             }
             else throw new Exception("Unexpected ExprNode children");
         }
-
         public object Visit(OpndNode node)
         {
             return node.Child.Accept(this);
         }
-
+        // Visits token node and gets its value
         public object Visit(TokenNode node)
         {
             if (node.GetType() == typeof(IdentNode))
@@ -160,7 +184,7 @@
                 {
                     return value;
                 }
-                else throw new RuntimeError($"Usage of uninitialized variable {node.Token.Value}", node.Token.Pos);
+                else throw new RuntimeError($"{ErrorMessage.RE_UNINITIALIZED_VAR} {node.Token.Value}", node.Token.Pos);
             }
             else if (node.GetType() == typeof(StrNode))
             {
@@ -169,6 +193,7 @@
             }
             return node.Token.Value;
         }
+        // Casts object (int/str) to integer
         private static int ToInt(object number)
         {
             if (number.GetType() == typeof(int)) return (int)number;

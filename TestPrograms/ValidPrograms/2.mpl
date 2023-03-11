@@ -6,6 +6,6 @@ for x in 0..nTimes-1 do
     print x;
     print " : Hello, World!\n";
 end for;
-if x = ntimes do
+if x = nTimes do
     print "x is equal to ntimes";
 end if;
