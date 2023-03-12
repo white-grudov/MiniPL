@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MiniPL.ErrorMessage" Collapsed="true">
+    <Position X="50.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>JEABAIAACAAABAAAAAAAAQAEAAAAAAAgAAQIAgkIAAA=</HashCode>
+      <FileName>Errors\ErrorMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ExMessage" Collapsed="true">
+    <Position X="45.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Errors\ErrorMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.MiniPLException" Collapsed="true">
+    <Position X="5.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.LexicalError" Collapsed="true">
+    <Position X="3" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.SyntaxError" Collapsed="true">
+    <Position X="5.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.SemanticError" Collapsed="true">
+    <Position X="7.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.RuntimeError" Collapsed="true">
+    <Position X="9.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.FileNotFoundError" Collapsed="true">
+    <Position X="0.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ErrorList" Collapsed="true">
+    <Position X="49" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Errors\MiniPLException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.Context" Collapsed="true">
+    <Position X="47.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAMAAQAAAAAAAAAAAAAQAAABAAAgAAAAwAAAAAAAEA=</HashCode>
+      <FileName>SemanticAnalyzer\Context.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.SemanticAnalyzer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="55.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgICBAQAACAAAAEAgAAAQAAAAAAAAAAAAAE=</HashCode>
+      <FileName>SemanticAnalyzer\SemanticAnalyzer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Ast" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.Node" Collapsed="true">
+    <Position X="22.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAEAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.ErrorNode" Collapsed="true">
+    <Position X="2.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ProgNode" Collapsed="true">
+    <Position X="4.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ApAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.StmtNode" Collapsed="true">
+    <Position X="14.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.StmtsNode" Collapsed="true">
+    <Position X="36.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAEAAAAAAAAAAAAAAAAAIAAAAAAAAAAAE=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.DeclNode" Collapsed="true">
+    <Position X="18.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAABAAAAAAAAAAIACQgAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.AssignNode" Collapsed="true">
+    <Position X="20.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIACAgAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ForNode" Collapsed="true">
+    <Position X="9.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AJAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAIAgAAAAAQAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.IfNode" Collapsed="true">
+    <Position X="11.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IIAAAAAAAAAAAAAAAAAAAAAAAAAAAAYACIAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ReadNode" Collapsed="true">
+    <Position X="13.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAgAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.PrintNode" Collapsed="true">
+    <Position X="16" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIACAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.ExprNode" Collapsed="true">
+    <Position X="40.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.UExprNode" Collapsed="true">
+    <Position X="40.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAIAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.LExprNode" Collapsed="true">
+    <Position X="43" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.LRExprNode" Collapsed="true">
+    <Position X="38.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAQAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAACAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.OpndNode" Collapsed="true">
+    <Position X="7" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAIAAAAAAAAAAAACAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.TokenNode" Collapsed="true">
+    <Position X="28.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAABAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.OpNode" Collapsed="true">
+    <Position X="29.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.UnOpNode" Collapsed="true">
+    <Position X="31.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.IdentNode" Collapsed="true">
+    <Position X="34" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.TypeNode" Collapsed="true">
+    <Position X="22.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.IntNode" Collapsed="true">
+    <Position X="25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.StrNode" Collapsed="true">
+    <Position X="27.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.AST" Collapsed="true">
+    <Position X="57.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\Parser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.Parser" Collapsed="true">
+    <Position X="55.5" Y="2.25" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="MiniPL.Parser.Inside" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Parser\Parser.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gDYhAIBIBQAAgCAAAAIRIQAAlCIBRAAIAgABIAQAAAA=</HashCode>
+      <FileName>Parser\Parser.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Scanner" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MiniPL.Scanner" Collapsed="true">
+    <Position X="55.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gRagAMBIAAAgYQACABAIIAIAgQAEAAAIAABAAAIIIAA=</HashCode>
+      <FileName>Scanner\Scanner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.TokenTypeExtenstions" Collapsed="true">
+    <Position X="50.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
+      <FileName>Scanner\Token.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MiniPL.Interpreter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="55.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAQAgAAAAAAAAAAAQAAAAAgAAAAAAAA=</HashCode>
+      <FileName>Interpreter\Interpreter.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Ast" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="MiniPL.MiniPL" Collapsed="true">
+    <Position X="53.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAARAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAI=</HashCode>
+      <FileName>MiniPL.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Parser" />
+      <Field Name="Analyzer" />
+      <Field Name="Interpreter" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="MiniPL.Program" Collapsed="true">
+    <Position X="45.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="MiniPL.TableEntry" Collapsed="true">
+    <Position X="47.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAgAAAAAAA=</HashCode>
+      <FileName>SemanticAnalyzer\Context.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MiniPL.Position" Collapsed="true">
+    <Position X="45.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scanner\Token.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MiniPL.Token" Collapsed="true">
+    <Position X="49" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAQAgAAAAAAA=</HashCode>
+      <FileName>Scanner\Token.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="MiniPL.IVisitor" Collapsed="true">
+    <Position X="57.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SemanticAnalyzer\IVisitor.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="MiniPL.INode" Collapsed="true">
+    <Position X="0.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAEAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="MiniPL.OpndNodeChild" Collapsed="true">
+    <Position X="0.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parser\ParseNodes.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="MiniPL.TokenType" Collapsed="true">
+    <Position X="45.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>DAIAAgAALCAEIIAAAEgADACUoAkIAAAAAAAAcAAICAA=</HashCode>
+      <FileName>Scanner\Token.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

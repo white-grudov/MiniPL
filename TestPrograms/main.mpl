@@ -1,18 +1,15 @@
-﻿print "Sum of n numbers\n";
-print "Enter n: ";
-var n : int;
-read n;
-var sum : int := 0;
-var i : int;
+﻿var i : int := "1";
+var str : string := 1;
 
-if n > 0 do
-    for i in 1..n do
-        sum := sum + i;
-    end for;
-    print "The sum of ";
-    print n;
-    print " numbers is: ";
-    print sum;
-else
-    print "Number is less than 1!";
-end if;
+i := 1 + "2";
+str := "test" / 3;
+
+if 1 + 1 do end if;
+if !i do end if;
+if 2 & 3 do end if;
+
+for str in str..str do end for;
+for i in (2 = 2)..10 do end for;
+
+var x : int := 1;
+x := "2";
