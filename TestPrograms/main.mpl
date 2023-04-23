@@ -1,15 +1,17 @@
-﻿var i : int := "1";
-var str : string := 1;
+﻿var a : int := 1;
+var b : int := 2;
+var c : int := 0;
 
-i := 1 + "2";
-str := "test" / 3;
+var n : int;
+print "Enter n: ";
+read n;
 
-if 1 + 1 do end if;
-if !i do end if;
-if 2 & 3 do end if;
+var i : int;
+for i in 1..n do
+    c := a * b;
+    a := b;
+    b := b + c;
+end for;
 
-for str in str..str do end for;
-for i in (2 = 2)..10 do end for;
-
-var x : int := 1;
-x := "2";
+print "Result: ";
+print c;
